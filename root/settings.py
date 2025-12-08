@@ -1,3 +1,4 @@
+from datetime import timedelta
 from os.path import join
 from pathlib import Path
 
@@ -23,7 +24,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'drf_spectacular_sidecar',
-
+    # jwt
+    'rest_framework_simplejwt',
 
 ]
 
@@ -98,15 +100,20 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
 
-
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Bloog',
-    'DESCRIPTION': 'Bloog',
+    'TITLE': 'DjangoProject',
+    'DESCRIPTION': 'DjangoProject',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,
 }
 
-
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+}
