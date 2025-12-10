@@ -23,7 +23,7 @@ class UserModelSerializer(ModelSerializer):
 
         return value
 
-    def validate_paswword(self, value):
+    def validate_password(self, value):
         if len(value) < 4:
             raise ValidationError('Password must be at least 4 characters!')
 
@@ -34,6 +34,12 @@ class UserUpdateSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'username', 'avatar', 'bio',)
+
+    def validate_username(self, value):
+        user = self.instance
+        if User.objects.exclude(id=user.id).filter(username=value).exists():
+            raise ValidationError('Username already registered!')
+        return value
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():

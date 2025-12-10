@@ -2,6 +2,10 @@ from datetime import timedelta
 from os.path import join
 from pathlib import Path
 
+from redis import Redis
+
+from core.config import RedisConfig
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-9r_skd*@gvn(ja&e0uprsc-yguhm*mxvf9h-u7v-2of+gdg7if'
@@ -119,3 +123,5 @@ SIMPLE_JWT = {
 }
 
 AUTH_USER_MODEL = 'auth_.User'
+
+redis = Redis.from_url(RedisConfig.CELERY_BROKER_URL, decode_responses=True)
