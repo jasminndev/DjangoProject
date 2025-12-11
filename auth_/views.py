@@ -4,13 +4,13 @@ from http import HTTPStatus
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from kombu.utils import json
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from auth_.models import User
-from auth_.serializers import UserModelSerializer, VerifyCodeSerializer
+from auth_.serializers import UserModelSerializer, VerifyCodeSerializer, UserUpdateSerializer
 from auth_.tasks import send_code_email
 from root.settings import redis
 
@@ -62,4 +62,33 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 class CustomTokenRefreshView(TokenRefreshView):
     pass
 
+
 #################################### USER ###################################
+@extend_schema(tags=['user'])
+class UserUpdateAPIView(UpdateAPIView):
+    serializer_class = UserUpdateSerializer
+    queryset = User.objects.all()
+    lookup_field = 'pk'
+
+    def get_object(self):
+        return self.request.user
+
+
+@extend_schema(tags=['user'])
+class UserDeleteAPIView(DestroyAPIView):
+    serializer_class = UserModelSerializer
+    lookup_field = 'pk'
+    queryset = User.objects.all()
+
+    def get_object(self):
+        return self.request.user
+
+
+@extend_schema(tags=['user'])
+class UserDetailAPIView(RetrieveAPIView):
+    queryset = User.objects.all()
+    lookup_field = 'pk'
+    serializer_class = UserModelSerializer
+
+    def get_object(self):
+        return self.request.user
