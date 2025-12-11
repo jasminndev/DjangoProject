@@ -13,7 +13,7 @@ class Post(Model):
 
 
 class PostImage(Model):
-    post = ForeignKey('auth_.Post', on_delete=CASCADE, related_name='images')
+    post = ForeignKey('apps.Post', on_delete=CASCADE, related_name='images')
     image = ImageField()
 
 
@@ -21,12 +21,12 @@ class PostView(Model):
     class Meta:
         unique_together = ('post', 'user')
 
-    post = ForeignKey('auth_.Post', on_delete=CASCADE, related_name='views')
+    post = ForeignKey('apps.Post', on_delete=CASCADE, related_name='views')
     user = ForeignKey('auth_.User', on_delete=CASCADE, related_name='views')
 
 
 class Comment(Model):
-    post = ForeignKey('auth_.Post', on_delete=CASCADE, related_name='comments')
+    post = ForeignKey('apps.Post', on_delete=CASCADE, related_name='comments')
     author = ForeignKey('auth_.User', on_delete=CASCADE, related_name='comments')
     content = TextField()
     created_at = DateTimeField(auto_now_add=True)
@@ -36,7 +36,7 @@ class Comment(Model):
 
 
 class Like(Model):
-    post = ForeignKey('auth_.Post', on_delete=CASCADE, related_name='likes')
+    post = ForeignKey('apps.Post', on_delete=CASCADE, related_name='likes')
     user = ForeignKey('auth_.User', on_delete=CASCADE, related_name='likes')
     created_at = DateTimeField(auto_now_add=True)
 

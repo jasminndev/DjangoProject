@@ -1,7 +1,7 @@
 import random
 from http import HTTPStatus
 
-from celery.utils.time import timezone
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from kombu.utils import json
 from rest_framework.generics import GenericAPIView
@@ -26,7 +26,7 @@ class UserGenericAPIView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         code = str(random.randrange(10 ** 5, 10 ** 6))
-        send_code_email().delay(user, code)
+        send_code_email.delay(user, code)
         redis.set(code, json.dumps(user))
         return Response({'message': 'Verification code is sent'}, status=HTTPStatus.OK)
 

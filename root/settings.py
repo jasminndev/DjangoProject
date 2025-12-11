@@ -4,7 +4,7 @@ from pathlib import Path
 
 from redis import Redis
 
-from core.config import RedisConfig
+from core.config import RedisConfig, EmailConfig
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -125,3 +125,21 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = 'auth_.User'
 
 redis = Redis.from_url(RedisConfig.CELERY_BROKER_URL, decode_responses=True)
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = EmailConfig.EMAIL_USER
+EMAIL_HOST_PASSWORD = EmailConfig.EMAIL_PASSWORD
+
+CELERY_TASK_ALWAYS_EAGER = True
+
+CELERY_BROKER_URL = RedisConfig.CELERY_BROKER_URL
+
+CELERY_RESULT_BACKEND = RedisConfig.CELERY_BROKER_URL
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+CELERY_TIMEZONE = 'Asia/Tashkent'

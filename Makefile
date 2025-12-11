@@ -4,3 +4,5 @@ mig:
 
 admin:
 	python3 manage.py createsuperuser
+celery:
+	celery -A root worker -l info

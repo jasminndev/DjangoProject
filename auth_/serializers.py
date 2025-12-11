@@ -11,13 +11,9 @@ from root.settings import redis
 
 
 class UserModelSerializer(ModelSerializer):
-    referral_code = CharField(read_only=True)
-    referred_by_code = CharField(write_only=True, required=False)
-
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username', 'email', 'password', 'avatar', 'bio', 'referral_code',
-                  'referred_by_code')
+        fields = ('first_name', 'last_name', 'username', 'email', 'password', 'avatar', 'bio',)
         read_only_fields = ('id', 'date_joined', 'role')
 
     def validate_email(self, value):
@@ -32,7 +28,7 @@ class UserModelSerializer(ModelSerializer):
         return value
 
     username_validation = RegexValidator(
-        regex=r'^[a-zA-Z0-9_.-]+$',
+        regex=r'^[a-zA-Z0-9_.]+$',
         message="Username should contain only letters, numbers and underscores."
     )
 
@@ -58,7 +54,10 @@ class UserModelSerializer(ModelSerializer):
 
 
 class VerifyCodeSerializer(Serializer):
-    code = CharField(max_length=6)
+    code = CharField(
+        max_length=6,
+        validators=[RegexValidator(r'^\d{6}$', 'Code must be 6 digits.')]
+    )
 
     def validate_code(self, value):
         data = redis.get(value)
@@ -74,10 +73,25 @@ class UserUpdateSerializer(ModelSerializer):
         model = User
         fields = ('first_name', 'last_name', 'username', 'avatar', 'bio',)
 
+    username_validation = RegexValidator(
+        regex=r'^[a-zA-Z0-9_.]+$',
+        message="Username should contain only letters, numbers and underscores."
+    )
+
     def validate_username(self, value):
+        self.username_validation(value)
+
+        reserved = ['admin', 'user', 'root', 'null']
+
+        if len(value) < 3:
+            raise ValidationError('Username must be at least 3 characters long.')
+        if value.lower() in reserved:
+            raise ValidationError('This username is not valid!')
+
         user = self.instance
         if User.objects.exclude(id=user.id).filter(username=value).exists():
-            raise ValidationError('Username already registered!')
+            raise ValidationError('This username is already taken!')
+
         return value
 
     def update(self, instance, validated_data):
