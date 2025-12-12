@@ -21,9 +21,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    # my apps
+    # my app
     'auth_',
-    'apps',
+    'app',
     # drf
     'rest_framework',
     'drf_spectacular',

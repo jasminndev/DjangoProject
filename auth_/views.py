@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from auth_.models import User
-from auth_.serializers import UserModelSerializer, VerifyCodeSerializer, UserUpdateSerializer
+from auth_.serializers import UserModelSerializer, VerifyCodeSerializer, UserUpdateModelSerializer
 from auth_.tasks import send_code_email
 from root.settings import redis
 
@@ -66,7 +66,7 @@ class CustomTokenRefreshView(TokenRefreshView):
 #################################### USER ###################################
 @extend_schema(tags=['user'])
 class UserUpdateAPIView(UpdateAPIView):
-    serializer_class = UserUpdateSerializer
+    serializer_class = UserUpdateModelSerializer
     queryset = User.objects.all()
     lookup_field = 'pk'
 

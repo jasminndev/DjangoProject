@@ -68,7 +68,7 @@ class VerifyCodeSerializer(Serializer):
         return value
 
 
-class UserUpdateSerializer(ModelSerializer):
+class UserUpdateModelSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'username', 'avatar', 'bio',)

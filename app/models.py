@@ -1,5 +1,4 @@
-from django.db.models import Model, ForeignKey, CASCADE, TextField, DateTimeField
-from django.forms import ImageField
+from django.db.models import Model, ForeignKey, CASCADE, TextField, DateTimeField, ImageField, BooleanField
 
 
 class Post(Model):
@@ -7,13 +6,17 @@ class Post(Model):
     content = TextField()
     created_at = DateTimeField(auto_now_add=True)
     updated_at = DateTimeField(auto_now=True)
+    is_edited = BooleanField(default=False)
+
+    class Meta:
+        ordering = ('-created_at',)
 
     def __str__(self):
-        return self.content
+        return f"Post by {self.author} ({self.created_at})"
 
 
 class PostImage(Model):
-    post = ForeignKey('apps.Post', on_delete=CASCADE, related_name='images')
+    post = ForeignKey('app.Post', on_delete=CASCADE, related_name='images')
     image = ImageField()
 
 
@@ -21,22 +24,29 @@ class PostView(Model):
     class Meta:
         unique_together = ('post', 'user')
 
-    post = ForeignKey('apps.Post', on_delete=CASCADE, related_name='views')
+    post = ForeignKey('app.Post', on_delete=CASCADE, related_name='views')
     user = ForeignKey('auth_.User', on_delete=CASCADE, related_name='views')
 
 
 class Comment(Model):
-    post = ForeignKey('apps.Post', on_delete=CASCADE, related_name='comments')
+    post = ForeignKey('app.Post', on_delete=CASCADE, related_name='comments')
     author = ForeignKey('auth_.User', on_delete=CASCADE, related_name='comments')
     content = TextField()
     created_at = DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created_at',)
 
     def __str__(self):
         return f"{self.author} commented on {self.post}"
 
 
 class Like(Model):
-    post = ForeignKey('apps.Post', on_delete=CASCADE, related_name='likes')
+    class Meta:
+        ordering = ('-created_at',)
+        unique_together = ('post', 'user')
+
+    post = ForeignKey('app.Post', on_delete=CASCADE, related_name='likes')
     user = ForeignKey('auth_.User', on_delete=CASCADE, related_name='likes')
     created_at = DateTimeField(auto_now_add=True)
 
