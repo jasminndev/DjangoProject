@@ -1,11 +1,13 @@
+from http import HTTPStatus
+
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
 from rest_framework.generics import CreateAPIView, ListAPIView, DestroyAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from app.models import Post, PostImage, PostView, Comment, Like
-from app.serializers import PostImageModelSerializer, PostModelSerializer, PostViewModelSerializer, \
-    CommentModelSerializer, LikeModelSerializer
+from app.serializers import PostImageModelSerializer, PostModelSerializer, CommentModelSerializer, LikeModelSerializer
 
 
 ###################################### POST ######################################
@@ -62,6 +64,11 @@ class PostImageCreateAPIView(CreateAPIView):
     queryset = PostImage.objects.all()
     serializer_class = PostImageModelSerializer
 
+    def perform_create(self, serializer):
+        post_id = self.kwargs.get("post_id")
+        post = get_object_or_404(Post, pk=post_id)
+        serializer.save(post=post)
+
 
 @extend_schema(tags=['post-image'])
 class PostImageListAPIView(ListAPIView):
@@ -81,18 +88,6 @@ class PostImageUpdateAPIView(UpdateAPIView):
     queryset = PostImage.objects.all()
     serializer_class = PostImageModelSerializer
     lookup_field = 'pk'
-
-
-###################################### POST-VIEW ######################################
-@extend_schema(tags=['post-view'])
-class PostViewCreateAPIView(CreateAPIView):
-    queryset = PostView.objects.all()
-    serializer_class = PostViewModelSerializer
-
-    def perform_create(self, serializer):
-        post_id = self.kwargs.get('post_id')
-        post = get_object_or_404(Post, id=post_id)
-        serializer.save(user=self.request.user, post=post)
 
 
 ###################################### COMMENT ######################################
@@ -124,6 +119,7 @@ class CommentDestroyAPIView(DestroyAPIView):
 
 
 ###################################### POST-LIKE ######################################
+@extend_schema(tags=['like'])
 class LikeCreateAPIView(CreateAPIView):
     queryset = Like.objects.all()
     serializer_class = LikeModelSerializer
@@ -138,9 +134,20 @@ class LikeCreateAPIView(CreateAPIView):
         serializer.save(user=self.request.user, post=post)
 
 
+@extend_schema(tags=['like'])
 class LikeListAPIView(ListAPIView):
     serializer_class = LikeModelSerializer
 
     def get_queryset(self):
         post_id = self.kwargs.get('post_id')
         return Like.objects.filter(post_id=post_id)
+
+
+@extend_schema(tags=['like'])
+class LikeCountAPIView(APIView):
+    serializer_class = LikeModelSerializer
+
+    def get(self, request, post_id):
+        blog = Post.objects.filter(pk=post_id).first()
+        quantity = blog.likes.count()
+        return Response({'count': quantity}, status=HTTPStatus.OK)
