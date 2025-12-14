@@ -7,3 +7,6 @@ admin:
 
 celery:
 	celery -A root worker -l info
+
+install:
+	uv sync
