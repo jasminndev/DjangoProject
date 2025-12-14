@@ -15,6 +15,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
+    'unfold',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -30,7 +31,6 @@ INSTALLED_APPS = [
     'drf_spectacular_sidecar',
     # jwt
     'rest_framework_simplejwt',
-
 ]
 
 MIDDLEWARE = [
