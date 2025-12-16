@@ -2,8 +2,9 @@ from django.db.models import Model, ForeignKey, CASCADE, TextField, DateTimeFiel
 
 
 class Post(Model):
-    author = ForeignKey('auth_.User', on_delete=CASCADE, related_name='posts')
-    content = TextField()
+    user = ForeignKey('auth_.User', on_delete=CASCADE, related_name='posts')
+    image = ImageField(upload_to='posts/')
+    caption = TextField()
     created_at = DateTimeField(auto_now_add=True)
     updated_at = DateTimeField(auto_now=True)
     is_edited = BooleanField(default=False)
@@ -12,12 +13,15 @@ class Post(Model):
         ordering = ('-created_at',)
 
     def __str__(self):
-        return f"Post by {self.author} ({self.created_at})"
+        return f"Post by {self.user.username} ({self.created_at})"
 
+    @property
+    def likes_count(self):
+        return self.likes.count()
 
-class PostImage(Model):
-    post = ForeignKey('app.Post', on_delete=CASCADE, related_name='images')
-    image = ImageField()
+    @property
+    def comments_count(self):
+        return self.comments.count()
 
 
 class PostView(Model):
@@ -30,15 +34,15 @@ class PostView(Model):
 
 class Comment(Model):
     post = ForeignKey('app.Post', on_delete=CASCADE, related_name='comments')
-    author = ForeignKey('auth_.User', on_delete=CASCADE, related_name='comments')
-    content = TextField()
+    user = ForeignKey('auth_.User', on_delete=CASCADE, related_name='comments')
+    text = TextField()
     created_at = DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ('-created_at',)
 
     def __str__(self):
-        return f"{self.author} commented on {self.post}"
+        return f"{self.user.username} commented on {self.post.id}: {self.text[:30]}"
 
 
 class Like(Model):
@@ -52,3 +56,16 @@ class Like(Model):
 
     def __str__(self):
         return f"{self.user} liked {self.post}"
+
+
+class Follow(Model):
+    class Meta:
+        ordering = ('-created_at',)
+        unique_together = ('follower', 'following')
+
+    follower = ForeignKey('auth_.User', on_delete=CASCADE, related_name='following')
+    following = ForeignKey('auth_.User', on_delete=CASCADE, related_name='followers')
+    created_at = DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.follower.username} follows {self.following.username}"
