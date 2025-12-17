@@ -3,18 +3,25 @@ import json
 from django.contrib.auth.hashers import make_password
 from django.core.validators import validate_email, RegexValidator
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import CharField
+from rest_framework.fields import CharField, ReadOnlyField, SerializerMethodField
 from rest_framework.serializers import ModelSerializer, Serializer
 
+from app.models import Follow
 from auth_.models import User
 from root.settings import redis
 
 
 class UserModelSerializer(ModelSerializer):
+    followers_count = ReadOnlyField()
+    following_count = ReadOnlyField()
+    posts_count = ReadOnlyField()
+    is_following = SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username', 'email', 'password', 'avatar', 'bio',)
-        read_only_fields = ('id', 'date_joined', 'role')
+        fields = ('id', 'first_name', 'last_name', 'username', 'email', 'password', 'avatar', 'bio', 'followers_count',
+                  'following_count', 'posts_count', 'is_following')
+        read_only_fields = ('id', 'date_joined')
 
     def validate_email(self, value):
         try:
@@ -51,6 +58,37 @@ class UserModelSerializer(ModelSerializer):
             raise ValidationError('Password must be at least 4 characters!')
 
         return make_password(value)
+
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated():
+            return Follow.objects.filter(
+                follower=request.user,
+                following=obj
+            ).exists()
+        return False
+
+
+class UserProfileSerializer(ModelSerializer):
+    followers_count = ReadOnlyField()
+    following_count = ReadOnlyField()
+    posts_count = ReadOnlyField()
+    is_following = SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'username', 'email', 'password', 'avatar', 'bio', 'followers_count',
+                  'following_count', 'posts_count', 'is_following')
+        read_only_fields = ('id', 'date_joined')
+
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated():
+            return Follow.objects.filter(
+                follower=request.user,
+                following=obj
+            ).exists()
+        return False
 
 
 class VerifyCodeSerializer(Serializer):
