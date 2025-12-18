@@ -6,8 +6,8 @@ from rest_framework.generics import CreateAPIView, ListAPIView, DestroyAPIView, 
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app.models import Post, PostImage, PostView, Comment, Like
-from app.serializers import PostImageModelSerializer, PostModelSerializer, CommentModelSerializer, LikeModelSerializer
+from app.models import Post, PostView, Comment, Like
+from app.serializers import PostModelSerializer, CommentModelSerializer, LikeModelSerializer
 
 
 ###################################### POST ######################################
@@ -56,38 +56,6 @@ class PostDetailAPIView(RetrieveAPIView):
         data = serializer.data
         data['views'] = instance.views.count()
         return Response(data)
-
-
-###################################### POST-IMAGE ######################################
-@extend_schema(tags=['post-image'])
-class PostImageCreateAPIView(CreateAPIView):
-    queryset = PostImage.objects.all()
-    serializer_class = PostImageModelSerializer
-
-    def perform_create(self, serializer):
-        post_id = self.kwargs.get("post_id")
-        post = get_object_or_404(Post, pk=post_id)
-        serializer.save(post=post)
-
-
-@extend_schema(tags=['post-image'])
-class PostImageListAPIView(ListAPIView):
-    queryset = PostImage.objects.all()
-    serializer_class = PostImageModelSerializer
-
-
-@extend_schema(tags=['post-image'])
-class PostImageDestroyAPIView(DestroyAPIView):
-    queryset = PostImage.objects.all()
-    serializer_class = PostImageModelSerializer
-    lookup_field = 'pk'
-
-
-@extend_schema(tags=['post-image'])
-class PostImageUpdateAPIView(UpdateAPIView):
-    queryset = PostImage.objects.all()
-    serializer_class = PostImageModelSerializer
-    lookup_field = 'pk'
 
 
 ###################################### COMMENT ######################################

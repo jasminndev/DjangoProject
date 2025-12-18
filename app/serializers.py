@@ -1,7 +1,7 @@
 from rest_framework.fields import ReadOnlyField
 from rest_framework.serializers import ModelSerializer
 
-from app.models import Post, PostView, Like, Follow, Comment
+from app.models import Post, PostView, Like, Comment
 from auth_.serializers import UserModelSerializer
 
 
@@ -71,13 +71,3 @@ class LikeModelSerializer(ModelSerializer):
         model = Like
         fields = ('id', 'post', 'user', 'created_at')
         read_only_fields = ('id', 'created_at', 'user')
-
-
-class FollowModelSerializer(ModelSerializer):
-    follower = UserModelSerializer(read_only=True)
-    following = UserModelSerializer(read_only=True)
-
-    class Meta:
-        model = Follow
-        fields = ('id', 'follower', 'following', 'created_at')
-        read_only_fields = ('id', 'follower', 'following', 'created_at')

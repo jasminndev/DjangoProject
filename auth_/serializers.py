@@ -6,8 +6,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField, ReadOnlyField, SerializerMethodField
 from rest_framework.serializers import ModelSerializer, Serializer
 
-from app.models import Follow
-from auth_.models import User
+from auth_.models import User, Follow
 from root.settings import redis
 
 
@@ -137,3 +136,13 @@ class UserUpdateModelSerializer(ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+
+
+class FollowModelSerializer(ModelSerializer):
+    follower = UserModelSerializer(read_only=True)
+    following = UserModelSerializer(read_only=True)
+
+    class Meta:
+        model = Follow
+        fields = ('id', 'follower', 'following', 'created_at')
+        read_only_fields = ('id', 'follower', 'following', 'created_at')

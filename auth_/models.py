@@ -1,6 +1,6 @@
 from ckeditor.fields import RichTextField
 from django.contrib.auth.models import AbstractUser, UserManager
-from django.db.models import ImageField
+from django.db.models import ImageField, Model, ForeignKey, CASCADE
 from django.db.models.fields import EmailField, DateTimeField
 
 
@@ -33,3 +33,16 @@ class User(AbstractUser):
     @property
     def posts_count(self):
         return self.posts.count()
+
+
+class Follow(Model):
+    class Meta:
+        ordering = ('-created_at',)
+        unique_together = ('follower', 'following')
+
+    follower = ForeignKey('auth_.User', on_delete=CASCADE, related_name='following')
+    following = ForeignKey('auth_.User', on_delete=CASCADE, related_name='followers')
+    created_at = DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.follower.username} follows {self.following.username}"

@@ -56,16 +56,3 @@ class Like(Model):
 
     def __str__(self):
         return f"{self.user} liked {self.post}"
-
-
-class Follow(Model):
-    class Meta:
-        ordering = ('-created_at',)
-        unique_together = ('follower', 'following')
-
-    follower = ForeignKey('auth_.User', on_delete=CASCADE, related_name='following')
-    following = ForeignKey('auth_.User', on_delete=CASCADE, related_name='followers')
-    created_at = DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.follower.username} follows {self.following.username}"

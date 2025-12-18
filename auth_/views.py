@@ -5,20 +5,24 @@ from django.db.models import Q
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from kombu.utils import json
+from rest_framework import status
 from rest_framework.generics import GenericAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView, ListAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from app.models import Follow
+from app.models import Post
+from app.serializers import PostModelSerializer
+from auth_.models import Follow
 from auth_.models import User
 from auth_.serializers import UserModelSerializer, VerifyCodeSerializer, UserUpdateModelSerializer, \
-    UserProfileSerializer
+    UserProfileSerializer, FollowModelSerializer
 from auth_.tasks import send_code_email
 from root.settings import redis
 
 
-#################################### AUTH ###################################
+####################################### AUTH ########################################
 @extend_schema(tags=['auth'])
 class UserGenericAPIView(GenericAPIView):
     serializer_class = UserModelSerializer
@@ -98,6 +102,12 @@ class UserDetailAPIView(RetrieveAPIView):
 
 
 @extend_schema(tags=['user'])
+class UserListAPIView(ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserProfileSerializer
+
+
+@extend_schema(tags=['user'])
 class UserProfileByUsernameAPIView(RetrieveAPIView):
     queryset = User.objects.all()
     lookup_field = 'username'
@@ -115,3 +125,81 @@ class SuggestedUsersAPIView(ListAPIView):
         return User.objects.exclude(
             Q(id=user.id) | Q(id__in=following_ids)
         ).order_by('-date_joined')[:10]
+
+
+@extend_schema(tags=['user'])
+class UserPostsAPIView(ListAPIView):
+    serializer_class = PostModelSerializer
+
+    def get_queryset(self):
+        username = self.kwargs.get('username')
+        try:
+            user = User.objects.get(username=username)
+            return Post.objects.filter(user=user).order_by('-created_at')
+        except User.DoesNotExist:
+            return Post.objects.none()
+
+
+##################################### FOLLOW #######################################3
+
+@extend_schema(tags=['follow'])
+class FollowUserAPIView(APIView):
+    def post(self, request, username):
+        try:
+            user_to_follow = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if user_to_follow == request.user:
+            return Response({'error': 'You can not follow yourself'}, status=status.HTTP_400_BAD_REQUEST)
+
+        follow, created = Follow.objects.get_or_create(
+            follower=request.user,
+            following=user_to_follow
+        )
+
+        if not created:
+            return Response({'error': 'Follow already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': f'You are now following {user_to_follow.username}'}, status=status.HTTP_201_CREATED)
+
+
+@extend_schema(tags=['follow'])
+class UnfollowUserAPIView(APIView):
+    def post(self, request, username):
+        try:
+            user_to_unfollow = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            follow = Follow.objects.get(follower=request.user, following=user_to_unfollow)
+            follow.delete()
+            return Response({'message': f"You have unfollowed {user_to_unfollow.username}"}, status=status.HTTP_200_OK)
+        except Follow.DoesNotExist:
+            return Response({'error': 'You are not following this user'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@extend_schema(tags=['follow'])
+class UserFollowersAPIView(APIView):
+    serializer_class = FollowModelSerializer
+
+    def get_queryset(self):
+        username = self.kwargs.get('username')
+        try:
+            user = User.objects.get(username=username)
+            return Follow.objects.filter(following=user)
+        except User.DoesNotExist:
+            return Follow.objects.none()
+
+
+@extend_schema(tags=['follow'])
+class UserFollowingAPIView(APIView):
+    serializer_class = FollowModelSerializer
+
+    def get_queryset(self):
+        username = self.kwargs.get('username')
+        try:
+            user = User.objects.get(username=username)
+            return Follow.objects.filter(follower=user)
+        except User.DoesNotExist:
+            return Follow.objects.none()
