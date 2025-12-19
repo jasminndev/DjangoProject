@@ -6,6 +6,7 @@ from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from kombu.utils import json
 from rest_framework import status
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import GenericAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView, ListAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -105,6 +106,8 @@ class UserDetailAPIView(RetrieveAPIView):
 class UserListAPIView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = PublicUserSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['username', 'first_name', 'last_name']
 
 
 @extend_schema(tags=['user'])
