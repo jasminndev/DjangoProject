@@ -41,7 +41,7 @@ class UserModelSerializer(ModelSerializer):
     def validate_username(self, value):
         self.username_validation(value)
 
-        reserved = ['admin', 'user', 'root', 'null']
+        reserved = ['admin', 'root', 'null']
 
         if len(value) < 3:
             raise ValidationError('Username must be at least 3 characters long.')
@@ -60,7 +60,7 @@ class UserModelSerializer(ModelSerializer):
 
     def get_is_following(self, obj):
         request = self.context.get('request')
-        if request and request.user.is_authenticated():
+        if request and request.user.is_authenticated:
             return Follow.objects.filter(
                 follower=request.user,
                 following=obj
@@ -82,7 +82,7 @@ class UserProfileSerializer(ModelSerializer):
 
     def get_is_following(self, obj):
         request = self.context.get('request')
-        if request and request.user.is_authenticated():
+        if request and request.user.is_authenticated:
             return Follow.objects.filter(
                 follower=request.user,
                 following=obj

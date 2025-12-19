@@ -140,7 +140,7 @@ class UserPostsAPIView(ListAPIView):
             return Post.objects.none()
 
 
-##################################### FOLLOW #######################################3
+##################################### FOLLOW ########################################
 
 @extend_schema(tags=['follow'])
 class FollowUserAPIView(APIView):

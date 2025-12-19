@@ -1,29 +1,26 @@
 from django.urls import path
 
 from app.views import (
-    PostCreateAPIView, PostListAPIView,
-    CommentCreateAPIView, CommentListAPIView,
-    LikeCreateAPIView, LikeListAPIView, PostDestroyAPIView,
-    PostUpdateAPIView, PostDetailAPIView,
-    CommentDestroyAPIView, LikeCountAPIView
+    PostCreateAPIView, PostListAPIView, CommentCreateAPIView,
+    PostUpdateAPIView, PostDetailAPIView, PostFeedAPIView,
+    PostDeleteAPIView, PostLikeAPIView, PostUnlikeAPIView,
+    PostLikesListAPIView, CommentDeleteAPIView, PostCommentsListAPIView
 )
 
 urlpatterns = [
     path('posts/', PostListAPIView.as_view()),
     path('posts/create/', PostCreateAPIView.as_view()),
-    path('posts/<int:pk>/delete/', PostDestroyAPIView.as_view()),
+    path('posts/feed/', PostFeedAPIView.as_view()),
+    path('posts/<int:pk>/', PostDetailAPIView.as_view()),
     path('posts/<int:pk>/update/', PostUpdateAPIView.as_view()),
-    path('posts/<int:pk>/detail/', PostDetailAPIView.as_view()),
+    path('posts/<int:pk>/delete/', PostDeleteAPIView.as_view()),
+    path('posts/<int:pk>/like/', PostLikeAPIView.as_view()),
+    path('posts/<int:pk>/unlike/', PostUnlikeAPIView.as_view()),
+    path('posts/<int:pk>/likes/', PostLikesListAPIView.as_view()),
 ]
 
 urlpatterns += [
-    path('posts/<int:post_id>/comments/', CommentListAPIView.as_view()),
-    path('posts/<int:post_id>/comments/create/', CommentCreateAPIView.as_view()),
-    path('posts/<int:pk>/comments/delete/', CommentDestroyAPIView.as_view()),
-]
-
-urlpatterns += [
-    path('posts/<int:post_id>/likes/', LikeListAPIView.as_view()),
-    path('posts/<int:post_id>/likes/create/', LikeCreateAPIView.as_view()),
-    path('posts/<int:post_id>/likes/count/', LikeCountAPIView.as_view()),
+    path('comments/<int:post_id>/create', CommentCreateAPIView.as_view()),
+    path('comments/<int:pk>/delete', CommentDeleteAPIView.as_view()),
+    path('posts/<int:post_id>/comments', PostCommentsListAPIView.as_view()),
 ]

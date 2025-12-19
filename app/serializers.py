@@ -1,4 +1,4 @@
-from rest_framework.fields import ReadOnlyField
+from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
 from app.models import Post, PostView, Like, Comment
@@ -16,9 +16,9 @@ class CommentModelSerializer(ModelSerializer):
 
 class PostModelSerializer(ModelSerializer):
     user = UserModelSerializer(read_only=True)
-    likes_count = ReadOnlyField()
-    comments_count = ReadOnlyField()
-    is_liked = ReadOnlyField()
+    likes_count = SerializerMethodField()
+    comments_count = SerializerMethodField()
+    is_liked = SerializerMethodField()
     comments = CommentModelSerializer(many=True, read_only=True)
 
     class Meta:
@@ -28,26 +28,26 @@ class PostModelSerializer(ModelSerializer):
             'updated_at')
         read_only_fields = ('id', 'user', 'created_at', 'updated_at', 'is_edited')
 
-    def update(self, instance, validated_data):
-        old_content = instance.contentauthor
-        new_content = validated_data.get('content', old_content)
+    def get_likes_count(self, obj):
+        return obj.likes.count()
 
-        if old_content != new_content:
-            validated_data['is_edited'] = True
-
-        return super().update(instance, validated_data)
+    def get_comments_count(self, obj):
+        return obj.comments.count()
 
     def get_is_liked(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return Like.objects.filter(user=request.user, post=obj).exists()
+            return obj.likes.filter(user=request.user).exists()
         return False
 
-    # def to_representation(self, instance):
-    #     data = super().to_representation(instance)
-    #     data['comments'] = CommentModelSerializer(instance.comments.all(), many=True).data
-    #     data['likes'] = LikeModelSerializer(instance.likes.all(), many=True).data
-    #     return data
+    def update(self, instance, validated_data):
+        old_caption = instance.caption
+        new_caption = validated_data.get('caption', old_caption)
+
+        if old_caption != new_caption:
+            validated_data['is_edited'] = True
+
+        return super().update(instance, validated_data)
 
 
 class PostCreateModelSerializer(ModelSerializer):
@@ -70,4 +70,4 @@ class LikeModelSerializer(ModelSerializer):
     class Meta:
         model = Like
         fields = ('id', 'post', 'user', 'created_at')
-        read_only_fields = ('id', 'created_at', 'user')
+        read_only_fields = ('id', 'created_at', 'user', 'post')
