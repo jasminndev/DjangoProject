@@ -4,19 +4,21 @@ from app.views import (
     PostCreateAPIView, PostListAPIView, CommentCreateAPIView,
     PostUpdateAPIView, PostDetailAPIView, PostFeedAPIView,
     PostDeleteAPIView, PostLikeAPIView, PostUnlikeAPIView,
-    PostLikesListAPIView, CommentDeleteAPIView, PostCommentsListAPIView
+    PostLikesListAPIView, CommentDeleteAPIView, PostCommentsListAPIView,
+    TopPostsAPIView
 )
 
 urlpatterns = [
     path('posts/', PostListAPIView.as_view()),
     path('posts/create/', PostCreateAPIView.as_view()),
-    path('posts/feed/', PostFeedAPIView.as_view()),
-    path('posts/<int:pk>/', PostDetailAPIView.as_view()),
+    path('posts/<int:pk>/detail', PostDetailAPIView.as_view()),
     path('posts/<int:pk>/update/', PostUpdateAPIView.as_view()),
     path('posts/<int:pk>/delete/', PostDeleteAPIView.as_view()),
     path('posts/<int:pk>/like/', PostLikeAPIView.as_view()),
     path('posts/<int:pk>/unlike/', PostUnlikeAPIView.as_view()),
     path('posts/<int:pk>/likes/', PostLikesListAPIView.as_view()),
+    path('home/', PostFeedAPIView.as_view()),
+    path('home/feed', TopPostsAPIView.as_view()),
 ]
 
 urlpatterns += [

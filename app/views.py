@@ -1,4 +1,8 @@
-from django.db.models import Q
+from datetime import timedelta
+
+from celery.utils.time import timezone
+from django.db.models import Count, Q, F
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView, DestroyAPIView, RetrieveAPIView, UpdateAPIView, \
@@ -61,7 +65,7 @@ class PostDetailAPIView(RetrieveAPIView):
         return Response(data)
 
 
-@extend_schema(tags=['post'])
+@extend_schema(tags=['post-feed'])
 class PostFeedAPIView(ListAPIView):
     serializer_class = PostModelSerializer
 
@@ -73,7 +77,29 @@ class PostFeedAPIView(ListAPIView):
         ).order_by('-created_at')
 
 
-@extend_schema(tags=['post'])
+@extend_schema(tags=['post-feed'])
+class TopPostsAPIView(ListAPIView):
+    serializer_class = PostModelSerializer
+
+    def get_queryset(self):
+        days_ago = 7
+        time_threshold = timezone.now() - timedelta(days=days_ago)
+
+        posts = Post.objects.filter(
+            created_at__gte=time_threshold
+        ).annotate(
+            likes_count_db=Count('likes', distinct=True),
+            comments_count_db=Count('comments', distinct=True),
+            engagement_score=F('likes_count_db') + F('comments_count_db')
+        ).select_related('user').prefetch_related(
+            'likes', 'comments'
+        ).order_by('-engagement_score', '-created_at')
+
+        return posts
+
+
+###################################### LIKE ######################################
+@extend_schema(tags=['like'])
 class PostLikeAPIView(APIView):
     def post(self, request, pk):
         try:
@@ -89,7 +115,7 @@ class PostLikeAPIView(APIView):
         return Response({'success': True}, status=status.HTTP_201_CREATED)
 
 
-@extend_schema(tags=['post'])
+@extend_schema(tags=['like'])
 class PostUnlikeAPIView(APIView):
     def post(self, request, pk):
         try:
@@ -105,7 +131,7 @@ class PostUnlikeAPIView(APIView):
             return Response({'error': 'You have not liked this post'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@extend_schema(tags=['post'])
+@extend_schema(tags=['like'])
 class PostLikesListAPIView(ListAPIView):
     serializer_class = LikeModelSerializer
 

@@ -23,6 +23,10 @@ class Post(Model):
     def comments_count(self):
         return self.comments.count()
 
+    @property
+    def views_count(self):
+        return self.views.count()
+
 
 class PostView(Model):
     class Meta:

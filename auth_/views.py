@@ -17,7 +17,7 @@ from app.serializers import PostModelSerializer
 from auth_.models import Follow
 from auth_.models import User
 from auth_.serializers import UserModelSerializer, VerifyCodeSerializer, UserUpdateModelSerializer, \
-    UserProfileSerializer, FollowModelSerializer
+    UserProfileSerializer, FollowModelSerializer, PublicUserSerializer
 from auth_.tasks import send_code_email
 from root.settings import redis
 
@@ -104,20 +104,20 @@ class UserDetailAPIView(RetrieveAPIView):
 @extend_schema(tags=['user'])
 class UserListAPIView(ListAPIView):
     queryset = User.objects.all()
-    serializer_class = UserProfileSerializer
+    serializer_class = PublicUserSerializer
 
 
 @extend_schema(tags=['user'])
 class UserProfileByUsernameAPIView(RetrieveAPIView):
     queryset = User.objects.all()
     lookup_field = 'username'
-    serializer_class = UserProfileSerializer
+    serializer_class = PublicUserSerializer
 
 
 @extend_schema(tags=['user'])
 class SuggestedUsersAPIView(ListAPIView):
     queryset = User.objects.all()
-    serializer_class = UserProfileSerializer
+    serializer_class = PublicUserSerializer
 
     def get_queryset(self):
         user = self.request.user
