@@ -5,7 +5,7 @@ from app.views import (
     PostUpdateAPIView, PostDetailAPIView, PostFeedAPIView,
     PostDeleteAPIView, PostLikeAPIView, PostUnlikeAPIView,
     PostLikesListAPIView, CommentDeleteAPIView, PostCommentsListAPIView,
-    TopPostsAPIView
+    TopPostsAPIView, MyPostsAPIView
 )
 
 urlpatterns = [
@@ -19,6 +19,7 @@ urlpatterns = [
     path('posts/<int:pk>/likes/', PostLikesListAPIView.as_view()),
     path('home/', PostFeedAPIView.as_view()),
     path('home/feed', TopPostsAPIView.as_view()),
+    path('posts/me/', MyPostsAPIView.as_view()),
 ]
 
 urlpatterns += [

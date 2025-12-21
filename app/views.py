@@ -98,6 +98,18 @@ class TopPostsAPIView(ListAPIView):
         return posts
 
 
+@extend_schema(tags=['post'])
+class MyPostsAPIView(ListAPIView):
+    serializer_class = PostModelSerializer
+
+    def get_queryset(self):
+        return (
+            Post.objects
+            .filter(user=self.request.user)
+            .order_by('-created_at')
+        )
+
+
 ###################################### LIKE ######################################
 @extend_schema(tags=['like'])
 class PostLikeAPIView(APIView):
