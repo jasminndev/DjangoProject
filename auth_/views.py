@@ -9,7 +9,6 @@ from rest_framework import status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import GenericAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView, ListAPIView
 from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -20,6 +19,7 @@ from auth_.models import User
 from auth_.serializers import UserModelSerializer, VerifyCodeSerializer, UserUpdateModelSerializer, \
     UserProfileSerializer, FollowModelSerializer, PublicUserSerializer
 from auth_.tasks import send_code_email
+from core.functions import api_response
 from root.settings import redis
 
 
@@ -36,7 +36,12 @@ class UserGenericAPIView(GenericAPIView):
         code = str(random.randrange(10 ** 5, 10 ** 6))
         send_code_email.delay(user, code)
         redis.set(code, json.dumps(user))
-        return Response({'message': 'Verification code is sent'}, status=HTTPStatus.OK)
+        return api_response(
+            success=True,
+            message="Verification code sent successfully",
+            data=None,
+            status=HTTPStatus.OK
+        )
 
 
 @extend_schema(tags=['auth'])
@@ -49,7 +54,12 @@ class VerifyEmailGenericAPIView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user_data = serializer.context.get('user_data')
         user = User.objects.create(**user_data)
-        return Response(UserModelSerializer(user).data, status=HTTPStatus.CREATED)
+        return api_response(
+            success=True,
+            message="Email verified successfully",
+            data=UserModelSerializer(user).data,
+            status=HTTPStatus.CREATED
+        )
 
 
 @extend_schema(tags=['auth'])
@@ -151,10 +161,18 @@ class FollowUserAPIView(APIView):
         try:
             user_to_follow = User.objects.get(username=username)
         except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return api_response(
+                success=False,
+                message="User not found",
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         if user_to_follow == request.user:
-            return Response({'error': 'You can not follow yourself'}, status=status.HTTP_400_BAD_REQUEST)
+            return api_response(
+                success=False,
+                message='You can not follow yourself',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         follow, created = Follow.objects.get_or_create(
             follower=request.user,
@@ -162,8 +180,16 @@ class FollowUserAPIView(APIView):
         )
 
         if not created:
-            return Response({'error': 'Follow already exists'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'message': f'You are now following {user_to_follow.username}'}, status=status.HTTP_201_CREATED)
+            return api_response(
+                success=False,
+                message='Follow already created',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return api_response(
+            success=True,
+            message=f'You are now following {user_to_follow.username}',
+            status=status.HTTP_201_CREATED
+        )
 
 
 @extend_schema(tags=['follow'])
@@ -172,14 +198,26 @@ class UnfollowUserAPIView(APIView):
         try:
             user_to_unfollow = User.objects.get(username=username)
         except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return api_response(
+                success=False,
+                message="User not found",
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         try:
             follow = Follow.objects.get(follower=request.user, following=user_to_unfollow)
             follow.delete()
-            return Response({'message': f"You have unfollowed {user_to_unfollow.username}"}, status=status.HTTP_200_OK)
+            return api_response(
+                success=True,
+                message=f"You have unfollowed {user_to_unfollow.username}",
+                data=None
+            )
         except Follow.DoesNotExist:
-            return Response({'error': 'You are not following this user'}, status=status.HTTP_400_BAD_REQUEST)
+            return api_response(
+                success=False,
+                message="You are not following this user",
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 @extend_schema(tags=['follow'])

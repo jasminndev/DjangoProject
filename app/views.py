@@ -7,13 +7,13 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView, DestroyAPIView, RetrieveAPIView, UpdateAPIView, \
     get_object_or_404
-from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from app.models import Post, PostView, Comment, Like
 from app.permissions import IsOwnerOrReadOnly, IsOwnerOrAdmin
 from app.serializers import PostModelSerializer, CommentModelSerializer, LikeModelSerializer
 from auth_.models import Follow
+from core.functions import api_response
 
 
 ###################################### POST ######################################
@@ -24,11 +24,28 @@ class PostCreateAPIView(CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        return api_response(
+            success=True,
+            message="Post created successfully",
+            data=response.data,
+            status=status.HTTP_201_CREATED
+        )
+
 
 @extend_schema(tags=['post'])
 class PostListAPIView(ListAPIView):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostModelSerializer
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return api_response(
+            success=True,
+            message="Posts retrieved successfully",
+            data=response.data
+        )
 
 
 @extend_schema(tags=['post'])
@@ -38,6 +55,14 @@ class PostDeleteAPIView(DestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly]
     lookup_field = 'pk'
 
+    def destroy(self, request, *args, **kwargs):
+        super().destroy(request, *args, **kwargs)
+        return api_response(
+            success=True,
+            message="Post deleted successfully",
+            data=None
+        )
+
 
 @extend_schema(tags=['post'])
 class PostUpdateAPIView(UpdateAPIView):
@@ -45,6 +70,14 @@ class PostUpdateAPIView(UpdateAPIView):
     serializer_class = PostModelSerializer
     permission_classes = [IsOwnerOrReadOnly]
     lookup_field = 'pk'
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        return api_response(
+            success=True,
+            message="Post updated successfully",
+            data=response.data
+        )
 
 
 @extend_schema(tags=['post'])
@@ -62,7 +95,11 @@ class PostDetailAPIView(RetrieveAPIView):
         serializer = self.get_serializer(instance)
         data = serializer.data
         data['views'] = instance.views.count()
-        return Response(data)
+        return api_response(
+            success=True,
+            message="Post retrieved successfully",
+            data=data
+        )
 
 
 @extend_schema(tags=['post-feed'])
@@ -114,33 +151,47 @@ class MyPostsAPIView(ListAPIView):
 @extend_schema(tags=['like'])
 class PostLikeAPIView(APIView):
     def post(self, request, pk):
-        try:
-            post = Post.objects.get(pk=pk)
-        except Post.DoesNotExist:
-            return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+        post = get_object_or_404(Post, pk=pk)
 
-        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        like, created = Like.objects.get_or_create(
+            user=request.user,
+            post=post
+        )
 
         if not created:
-            return Response({'error': 'You have already liked this post'}, status=status.HTTP_400_BAD_REQUEST)
+            return api_response(
+                success=False,
+                message="You have already liked this post",
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        return Response({'success': True}, status=status.HTTP_201_CREATED)
+        return api_response(
+            success=True,
+            message="Post liked successfully",
+            data=None,
+            status=status.HTTP_201_CREATED
+        )
 
 
 @extend_schema(tags=['like'])
 class PostUnlikeAPIView(APIView):
     def post(self, request, pk):
-        try:
-            post = Post.objects.get(pk=pk)
-        except Post.DoesNotExist:
-            return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+        post = get_object_or_404(Post, pk=pk)
 
         try:
             like = Like.objects.get(user=request.user, post=post)
             like.delete()
-            return Response({'success': True}, status=status.HTTP_200_OK)
+            return api_response(
+                success=True,
+                message="Post unliked successfully",
+                data=None
+            )
         except Like.DoesNotExist:
-            return Response({'error': 'You have not liked this post'}, status=status.HTTP_400_BAD_REQUEST)
+            return api_response(
+                success=False,
+                message="You have not liked this post",
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 @extend_schema(tags=['like'])
@@ -148,8 +199,17 @@ class PostLikesListAPIView(ListAPIView):
     serializer_class = LikeModelSerializer
 
     def get_queryset(self):
-        post_id = self.kwargs.get('pk')
-        return Like.objects.filter(post__id=post_id).order_by('-created_at')
+        return Like.objects.filter(
+            post_id=self.kwargs["pk"]
+        ).order_by("-created_at")
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return api_response(
+            success=True,
+            message="Post likes retrieved successfully",
+            data=response.data
+        )
 
 
 ###################################### COMMENT ######################################
@@ -164,6 +224,15 @@ class CommentCreateAPIView(CreateAPIView):
             post=post
         )
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        return api_response(
+            success=True,
+            message="Comment created successfully",
+            data=response.data,
+            status=status.HTTP_201_CREATED
+        )
+
 
 @extend_schema(tags=['comment'])
 class CommentDeleteAPIView(DestroyAPIView):
@@ -171,6 +240,14 @@ class CommentDeleteAPIView(DestroyAPIView):
     serializer_class = CommentModelSerializer
     lookup_field = 'pk'
     permission_classes = [IsOwnerOrAdmin]
+
+    def destroy(self, request, *args, **kwargs):
+        super().destroy(request, *args, **kwargs)
+        return api_response(
+            success=True,
+            message="Comment deleted successfully",
+            data=None
+        )
 
 
 @extend_schema(tags=['comment'])
@@ -180,3 +257,11 @@ class PostCommentsListAPIView(ListAPIView):
     def get_queryset(self):
         post_id = self.kwargs.get('post_id')
         return Comment.objects.filter(post_id=post_id).order_by('-created_at')
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return api_response(
+            success=True,
+            message="Comments retrieved successfully",
+            data=response.data
+        )
