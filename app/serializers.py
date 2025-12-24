@@ -2,11 +2,11 @@ from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
 from app.models import Post, PostView, Like, Comment
-from auth_.serializers import UserModelSerializer, PublicUserSerializer
+from auth_.serializers import UserProfileSecondSerializer
 
 
 class CommentModelSerializer(ModelSerializer):
-    user = PublicUserSerializer(read_only=True)
+    user = UserProfileSecondSerializer(read_only=True)
 
     class Meta:
         model = Comment
@@ -15,7 +15,7 @@ class CommentModelSerializer(ModelSerializer):
 
 
 class PostModelSerializer(ModelSerializer):
-    user = PublicUserSerializer(read_only=True)
+    user = UserProfileSecondSerializer(read_only=True)
     likes_count = SerializerMethodField()
     comments_count = SerializerMethodField()
     is_liked = SerializerMethodField()
@@ -65,7 +65,7 @@ class PostViewModelSerializer(ModelSerializer):
 
 
 class LikeModelSerializer(ModelSerializer):
-    user = UserModelSerializer(read_only=True)
+    user = UserProfileSecondSerializer(read_only=True)
 
     class Meta:
         model = Like

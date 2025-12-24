@@ -11,15 +11,9 @@ from root.settings import redis
 
 
 class UserModelSerializer(ModelSerializer):
-    followers_count = ReadOnlyField()
-    following_count = ReadOnlyField()
-    posts_count = ReadOnlyField()
-    is_following = SerializerMethodField()
-
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'username', 'email', 'password', 'avatar', 'bio', 'followers_count',
-                  'following_count', 'posts_count', 'is_following')
+        fields = ('id', 'first_name', 'last_name', 'username', 'email', 'password', 'avatar', 'bio',)
         read_only_fields = ('id', 'date_joined')
 
     def validate_email(self, value):
@@ -55,17 +49,14 @@ class UserModelSerializer(ModelSerializer):
     def validate_password(self, value):
         if len(value) < 4:
             raise ValidationError('Password must be at least 4 characters!')
+        # if len(value) > 20:
+        #     raise ValidationError('Password must be at most 20 characters')
+        # if not re.search(r'\d', value):
+        #     raise ValidationError('Parolda kamida bitta son bo‘lishi lozim.')
+        # if not re.search(r'[A-Za-z]', value):
+        #     raise ValidationError('Parolda kamida bitta harf bo‘lishi lozim.')
 
         return make_password(value)
-
-    def get_is_following(self, obj):
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return Follow.objects.filter(
-                follower=request.user,
-                following=obj
-            ).exists()
-        return False
 
 
 class UserProfileSerializer(ModelSerializer):
@@ -76,7 +67,7 @@ class UserProfileSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'username', 'email', 'password', 'avatar', 'bio', 'followers_count',
+        fields = ('id', 'first_name', 'last_name', 'username', 'avatar', 'bio', 'followers_count',
                   'following_count', 'posts_count', 'is_following')
         read_only_fields = ('id', 'date_joined')
 
@@ -88,6 +79,13 @@ class UserProfileSerializer(ModelSerializer):
                 following=obj
             ).exists()
         return False
+
+
+class UserProfileSecondSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'avatar',)
+        read_only_fields = ('id', 'username', 'avatar',)
 
 
 class VerifyCodeSerializer(Serializer):
@@ -139,8 +137,8 @@ class UserUpdateModelSerializer(ModelSerializer):
 
 
 class FollowModelSerializer(ModelSerializer):
-    follower = UserModelSerializer(read_only=True)
-    following = UserModelSerializer(read_only=True)
+    follower = UserProfileSecondSerializer(read_only=True)
+    following = UserProfileSecondSerializer(read_only=True)
 
     class Meta:
         model = Follow

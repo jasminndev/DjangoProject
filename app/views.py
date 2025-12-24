@@ -108,10 +108,22 @@ class PostFeedAPIView(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        following_ids = Follow.objects.filter(follower=user).values_list('following_id', flat=True)
+        following_ids = Follow.objects.filter(
+            follower=user
+        ).values_list("following_id", flat=True)
+
         return Post.objects.filter(
             Q(user=user) | Q(user_id__in=following_ids)
-        ).order_by('-created_at')
+        ).order_by("-created_at")
+
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+
+        return api_response(
+            success=True,
+            message="Feed retrieved successfully",
+            data=serializer.data
+        )
 
 
 @extend_schema(tags=['post-feed'])
@@ -119,20 +131,24 @@ class TopPostsAPIView(ListAPIView):
     serializer_class = PostModelSerializer
 
     def get_queryset(self):
-        days_ago = 7
-        time_threshold = timezone.now() - timedelta(days=days_ago)
+        time_threshold = timezone.now() - timedelta(days=7)
 
-        posts = Post.objects.filter(
+        return Post.objects.filter(
             created_at__gte=time_threshold
         ).annotate(
-            likes_count_db=Count('likes', distinct=True),
-            comments_count_db=Count('comments', distinct=True),
-            engagement_score=F('likes_count_db') + F('comments_count_db')
-        ).select_related('user').prefetch_related(
-            'likes', 'comments'
-        ).order_by('-engagement_score', '-created_at')
+            likes_count_db=Count("likes", distinct=True),
+            comments_count_db=Count("comments", distinct=True),
+            engagement_score=F("likes_count_db") + F("comments_count_db")
+        ).order_by("-engagement_score", "-created_at")
 
-        return posts
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+
+        return api_response(
+            success=True,
+            message="Top posts retrieved successfully",
+            data=serializer.data
+        )
 
 
 @extend_schema(tags=['post'])
@@ -140,10 +156,17 @@ class MyPostsAPIView(ListAPIView):
     serializer_class = PostModelSerializer
 
     def get_queryset(self):
-        return (
-            Post.objects
-            .filter(user=self.request.user)
-            .order_by('-created_at')
+        return Post.objects.filter(
+            user=self.request.user
+        ).order_by("-created_at")
+
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+
+        return api_response(
+            success=True,
+            message="My posts retrieved successfully",
+            data=serializer.data
         )
 
 

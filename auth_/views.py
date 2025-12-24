@@ -7,7 +7,8 @@ from drf_spectacular.utils import extend_schema
 from kombu.utils import json
 from rest_framework import status
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import GenericAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView, ListAPIView
+from rest_framework.generics import GenericAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView, ListAPIView, \
+    get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -17,7 +18,7 @@ from app.serializers import PostModelSerializer
 from auth_.models import Follow
 from auth_.models import User
 from auth_.serializers import UserModelSerializer, VerifyCodeSerializer, UserUpdateModelSerializer, \
-    UserProfileSerializer, FollowModelSerializer, PublicUserSerializer
+    UserProfileSerializer, FollowModelSerializer, PublicUserSerializer, UserProfileSecondSerializer
 from auth_.tasks import send_code_email
 from core.functions import api_response
 from root.settings import redis
@@ -86,10 +87,24 @@ class CustomTokenRefreshView(TokenRefreshView):
 class UserUpdateAPIView(UpdateAPIView):
     serializer_class = UserUpdateModelSerializer
     queryset = User.objects.all()
-    lookup_field = 'pk'
 
     def get_object(self):
         return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(
+            self.get_object(),
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return api_response(
+            success=True,
+            message="User updated successfully",
+            data=serializer.data
+        )
 
 
 @extend_schema(tags=['user'])
@@ -101,6 +116,14 @@ class UserDeleteAPIView(DestroyAPIView):
     def get_object(self):
         return self.request.user
 
+    def destroy(self, request, *args, **kwargs):
+        self.get_object().delete()
+        return api_response(
+            success=True,
+            message="User deleted successfully",
+            data=None
+        )
+
 
 @extend_schema(tags=['user'])
 class UserDetailAPIView(RetrieveAPIView):
@@ -111,13 +134,35 @@ class UserDetailAPIView(RetrieveAPIView):
     def get_object(self):
         return self.request.user
 
+    def retrieve(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_object())
+        return api_response(
+            success=True,
+            message="User profile retrieved successfully",
+            data=serializer.data
+        )
+
 
 @extend_schema(tags=['user'])
 class UserListAPIView(ListAPIView):
     queryset = User.objects.all()
-    serializer_class = PublicUserSerializer
+    serializer_class = UserProfileSecondSerializer
     filter_backends = [SearchFilter]
     search_fields = ['username', 'first_name', 'last_name']
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return api_response(
+            success=True,
+            message="Users retrieved successfully",
+            data=serializer.data
+        )
 
 
 @extend_schema(tags=['user'])
@@ -126,11 +171,19 @@ class UserProfileByUsernameAPIView(RetrieveAPIView):
     lookup_field = 'username'
     serializer_class = PublicUserSerializer
 
+    def retrieve(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_object())
+        return api_response(
+            success=True,
+            message="User profile retrieved successfully",
+            data=serializer.data
+        )
+
 
 @extend_schema(tags=['user'])
 class SuggestedUsersAPIView(ListAPIView):
     queryset = User.objects.all()
-    serializer_class = PublicUserSerializer
+    serializer_class = UserProfileSecondSerializer
 
     def get_queryset(self):
         user = self.request.user
@@ -139,18 +192,30 @@ class SuggestedUsersAPIView(ListAPIView):
             Q(id=user.id) | Q(id__in=following_ids)
         ).order_by('-date_joined')[:10]
 
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return api_response(
+            success=True,
+            message="Suggested users retrieved successfully",
+            data=serializer.data
+        )
+
 
 @extend_schema(tags=['user'])
 class UserPostsAPIView(ListAPIView):
     serializer_class = PostModelSerializer
 
     def get_queryset(self):
-        username = self.kwargs.get('username')
-        try:
-            user = User.objects.get(username=username)
-            return Post.objects.filter(user=user).order_by('-created_at')
-        except User.DoesNotExist:
-            return Post.objects.none()
+        user = get_object_or_404(User, username=self.kwargs["username"])
+        return Post.objects.filter(user=user).order_by("-created_at")
+
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return api_response(
+            success=True,
+            message="User posts retrieved successfully",
+            data=serializer.data
+        )
 
 
 ##################################### FOLLOW ########################################
@@ -222,25 +287,27 @@ class UnfollowUserAPIView(APIView):
 
 @extend_schema(tags=['follow'])
 class UserFollowersAPIView(APIView):
-    serializer_class = FollowModelSerializer
+    def get(self, request, username):
+        user = get_object_or_404(User, username=username)
+        followers = Follow.objects.filter(following=user)
+        serializer = FollowModelSerializer(followers, many=True)
 
-    def get_queryset(self):
-        username = self.kwargs.get('username')
-        try:
-            user = User.objects.get(username=username)
-            return Follow.objects.filter(following=user)
-        except User.DoesNotExist:
-            return Follow.objects.none()
+        return api_response(
+            success=True,
+            message="Followers retrieved successfully",
+            data=serializer.data
+        )
 
 
 @extend_schema(tags=['follow'])
 class UserFollowingAPIView(APIView):
-    serializer_class = FollowModelSerializer
+    def get(self, request, username):
+        user = get_object_or_404(User, username=username)
+        following = Follow.objects.filter(follower=user)
+        serializer = FollowModelSerializer(following, many=True)
 
-    def get_queryset(self):
-        username = self.kwargs.get('username')
-        try:
-            user = User.objects.get(username=username)
-            return Follow.objects.filter(follower=user)
-        except User.DoesNotExist:
-            return Follow.objects.none()
+        return api_response(
+            success=True,
+            message="Following list retrieved successfully",
+            data=serializer.data
+        )
