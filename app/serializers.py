@@ -19,12 +19,11 @@ class PostModelSerializer(ModelSerializer):
     likes_count = SerializerMethodField()
     comments_count = SerializerMethodField()
     is_liked = SerializerMethodField()
-    comments = CommentModelSerializer(many=True, read_only=True)
 
     class Meta:
         model = Post
         fields = (
-            'id', 'caption', 'user', 'likes_count', 'comments_count', 'is_liked', 'comments', 'image', 'created_at',
+            'id', 'caption', 'user', 'likes_count', 'comments_count', 'is_liked', 'image', 'created_at',
             'updated_at')
         read_only_fields = ('id', 'user', 'created_at', 'updated_at', 'is_edited')
 
