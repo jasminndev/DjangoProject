@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.contrib.auth.hashers import make_password
 from django.core.validators import validate_email, RegexValidator
@@ -7,6 +8,7 @@ from rest_framework.fields import CharField, ReadOnlyField, SerializerMethodFiel
 from rest_framework.serializers import ModelSerializer, Serializer
 
 from auth_.models import User, Follow
+from core.functions import api_response
 from root.settings import redis
 
 
@@ -48,14 +50,13 @@ class UserModelSerializer(ModelSerializer):
 
     def validate_password(self, value):
         if len(value) < 4:
-            raise ValidationError('Password must be at least 4 characters!')
-        # if len(value) > 20:
-        #     raise ValidationError('Password must be at most 20 characters')
-        # if not re.search(r'\d', value):
-        #     raise ValidationError('Parolda kamida bitta son bo‘lishi lozim.')
-        # if not re.search(r'[A-Za-z]', value):
-        #     raise ValidationError('Parolda kamida bitta harf bo‘lishi lozim.')
-
+            raise ValidationError(api_response(success=False, message='Password must be at least 4 characters!', status=400).data)
+        if len(value) > 20:
+            raise ValidationError(api_response(success=False, message='Password must be at most 20 characters', status=400).data)
+        if not re.search(r'\d', value):
+            raise ValidationError(api_response(success=False, message='Parolda kamida bitta son bo‘lishi lozim.', status=400).data)
+        if not re.search(r'[A-Za-z]', value):
+            raise ValidationError(api_response(success=False, message='Parolda kamida bitta harf bo‘lishi lozim.', status=400).data)
         return make_password(value)
 
 

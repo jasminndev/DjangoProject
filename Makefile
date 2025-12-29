@@ -10,3 +10,5 @@ celery:
 
 install:
 	uv sync
+
+run:
