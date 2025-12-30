@@ -12,3 +12,4 @@ install:
 	uv sync
 
 run:
+	python3 ./manage.py runserver

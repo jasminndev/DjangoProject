@@ -1,5 +1,5 @@
 def main():
-    print("Hello from djangoproject!")
+    print("Hello from PostStream!")
 
 
 if __name__ == "__main__":

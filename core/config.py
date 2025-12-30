@@ -38,6 +38,11 @@ class EmailConfig:
 
 
 @dataclass
+class SecretConfig:
+    SECRET_KEY = os.getenv("SECRET_KEY")
+
+
+@dataclass
 class Payment:
     PAYMENT_PROVIDER_TOKEN = os.getenv("PAYMENT_PROVIDER_TOKEN")
 

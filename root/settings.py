@@ -4,11 +4,11 @@ from pathlib import Path
 
 from redis import Redis
 
-from core.config import RedisConfig, EmailConfig
+from core.config import RedisConfig, EmailConfig, SecretConfig
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-9r_skd*@gvn(ja&e0uprsc-yguhm*mxvf9h-u7v-2of+gdg7if'
+SECRET_KEY = SecretConfig.SECRET_KEY
 
 DEBUG = True
 
@@ -110,8 +110,8 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'DjangoProject',
-    'DESCRIPTION': 'DjangoProject',
+    'TITLE': 'PostStream',
+    'DESCRIPTION': 'PostStream',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,

@@ -3,7 +3,7 @@ from django.db.models import Model, ForeignKey, CASCADE, TextField, DateTimeFiel
 
 class Post(Model):
     user = ForeignKey('auth_.User', on_delete=CASCADE, related_name='posts')
-    image = ImageField(upload_to='posts/')
+    image = ImageField(upload_to='posts//%Y/%m/%d/', null=True, blank=True)
     caption = TextField()
     created_at = DateTimeField(auto_now_add=True)
     updated_at = DateTimeField(auto_now=True)
