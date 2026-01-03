@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django.contrib.auth.models import Group
 
-from auth_.models import User
+from authentication.models import User
 
 admin.site.site_header = "Django Project"
 admin.site.site_title = "Project's Admin Portal"

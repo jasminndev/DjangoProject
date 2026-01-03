@@ -89,4 +89,4 @@ dmypy.json
 .pytype/
 cython_debug/
 app/migrations
-auth_/migrations
+authentication/migrations

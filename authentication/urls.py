@@ -1,6 +1,6 @@
 from django.urls import path
 
-from auth_.views import (
+from authentication.views import (
     CustomTokenObtainPairView, CustomTokenRefreshView,
     UserGenericAPIView, VerifyEmailGenericAPIView,
     UserUpdateAPIView, UserDetailAPIView,

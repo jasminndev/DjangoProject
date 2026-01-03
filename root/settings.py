@@ -23,7 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.admin',
     # my app
-    'auth_',
+    'authentication',
     'app',
     # drf
     'rest_framework',
@@ -122,7 +122,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
 }
 
-AUTH_USER_MODEL = 'auth_.User'
+AUTH_USER_MODEL = 'authentication.User'
 
 redis = Redis.from_url(RedisConfig.CELERY_BROKER_URL, decode_responses=True)
 

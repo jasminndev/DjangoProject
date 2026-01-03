@@ -2,7 +2,7 @@ from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
 from app.models import Post, PostView, Like, Comment
-from auth_.serializers import UserProfileSecondSerializer
+from authentication.serializers import UserProfileSecondSerializer
 
 
 class CommentModelSerializer(ModelSerializer):

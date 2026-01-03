@@ -15,11 +15,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from app.models import Post
 from app.serializers import PostModelSerializer
-from auth_.models import Follow
-from auth_.models import User
-from auth_.serializers import UserModelSerializer, VerifyCodeSerializer, UserUpdateModelSerializer, \
+from authentication.models import Follow
+from authentication.models import User
+from authentication.serializers import UserModelSerializer, VerifyCodeSerializer, UserUpdateModelSerializer, \
     UserProfileSerializer, FollowModelSerializer, PublicUserSerializer, UserProfileSecondSerializer
-from auth_.tasks import send_code_email
+from authentication.tasks import send_code_email
 from core.functions import api_response
 from root.settings import redis
 

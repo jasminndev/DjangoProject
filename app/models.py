@@ -2,7 +2,7 @@ from django.db.models import Model, ForeignKey, CASCADE, TextField, DateTimeFiel
 
 
 class Post(Model):
-    user = ForeignKey('auth_.User', on_delete=CASCADE, related_name='posts')
+    user = ForeignKey('authentication.User', on_delete=CASCADE, related_name='posts')
     image = ImageField(upload_to='posts//%Y/%m/%d/', null=True, blank=True)
     caption = TextField()
     created_at = DateTimeField(auto_now_add=True)
@@ -33,12 +33,12 @@ class PostView(Model):
         unique_together = ('post', 'user')
 
     post = ForeignKey('app.Post', on_delete=CASCADE, related_name='views')
-    user = ForeignKey('auth_.User', on_delete=CASCADE, related_name='views')
+    user = ForeignKey('authentication.User', on_delete=CASCADE, related_name='views')
 
 
 class Comment(Model):
     post = ForeignKey('app.Post', on_delete=CASCADE, related_name='comments')
-    user = ForeignKey('auth_.User', on_delete=CASCADE, related_name='comments')
+    user = ForeignKey('authentication.User', on_delete=CASCADE, related_name='comments')
     text = TextField()
     created_at = DateTimeField(auto_now_add=True)
 
@@ -55,7 +55,7 @@ class Like(Model):
         unique_together = ('post', 'user')
 
     post = ForeignKey('app.Post', on_delete=CASCADE, related_name='likes')
-    user = ForeignKey('auth_.User', on_delete=CASCADE, related_name='likes')
+    user = ForeignKey('authentication.User', on_delete=CASCADE, related_name='likes')
     created_at = DateTimeField(auto_now_add=True)
 
     def __str__(self):

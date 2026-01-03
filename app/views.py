@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 from app.models import Post, PostView, Comment, Like
 from app.permissions import IsOwnerOrReadOnly, IsOwnerOrAdmin
 from app.serializers import PostModelSerializer, CommentModelSerializer, LikeModelSerializer
-from auth_.models import Follow
+from authentication.models import Follow
 from core.functions import api_response
 
 
