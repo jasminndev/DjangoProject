@@ -48,20 +48,20 @@ class UserModelSerializer(ModelSerializer):
 
         return value
 
-    def validate_password(self, value):
-        if len(value) < 4:
-            raise ValidationError(
-                api_response(success=False, message='Password must be at least 4 characters!', status=400).data)
-        if len(value) > 20:
-            raise ValidationError(
-                api_response(success=False, message='Password must be at most 20 characters', status=400).data)
-        if not re.search(r'\d', value):
-            raise ValidationError(
-                api_response(success=False, message='Parolda kamida bitta son bo‘lishi lozim.', status=400).data)
-        if not re.search(r'[A-Za-z]', value):
-            raise ValidationError(
-                api_response(success=False, message='Parolda kamida bitta harf bo‘lishi lozim.', status=400).data)
-        return make_password(value)
+    # def validate_password(self, value):
+    #     if len(value) < 4:
+    #         raise ValidationError(
+    #             api_response(success=False, message='Password must be at least 4 characters!', status=400).data)
+    #     if len(value) > 20:
+    #         raise ValidationError(
+    #             api_response(success=False, message='Password must be at most 20 characters', status=400).data)
+    #     if not re.search(r'\d', value):
+    #         raise ValidationError(
+    #             api_response(success=False, message='Parolda kamida bitta son bo‘lishi lozim.', status=400).data)
+    #     if not re.search(r'[A-Za-z]', value):
+    #         raise ValidationError(
+    #             api_response(success=False, message='Parolda kamida bitta harf bo‘lishi lozim.', status=400).data)
+    #     return make_password(value)
 
 
 class UserProfileSerializer(ModelSerializer):
