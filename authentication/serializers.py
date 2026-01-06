@@ -48,20 +48,71 @@ class UserModelSerializer(ModelSerializer):
 
         return value
 
-    # def validate_password(self, value):
-    #     if len(value) < 4:
-    #         raise ValidationError(
-    #             api_response(success=False, message='Password must be at least 4 characters!', status=400).data)
-    #     if len(value) > 20:
-    #         raise ValidationError(
-    #             api_response(success=False, message='Password must be at most 20 characters', status=400).data)
-    #     if not re.search(r'\d', value):
-    #         raise ValidationError(
-    #             api_response(success=False, message='Parolda kamida bitta son bo‘lishi lozim.', status=400).data)
-    #     if not re.search(r'[A-Za-z]', value):
-    #         raise ValidationError(
-    #             api_response(success=False, message='Parolda kamida bitta harf bo‘lishi lozim.', status=400).data)
-    #     return make_password(value)
+    def validate_password(self, value):
+        if len(value) < 8:
+            raise ValidationError(
+                api_response(
+                    success=False,
+                    message="Password must be at least 8 characters long.",
+                    status=400
+                ).data
+            )
+
+        if len(value) > 64:
+            raise ValidationError(
+                api_response(
+                    success=False,
+                    message="Password must not exceed 64 characters.",
+                    status=400
+                ).data
+            )
+
+        if " " in value:
+            raise ValidationError(
+                api_response(
+                    success=False,
+                    message="Password must not contain spaces.",
+                    status=400
+                ).data
+            )
+
+        if not re.search(r"[A-Z]", value):
+            raise ValidationError(
+                api_response(
+                    success=False,
+                    message="Password must contain at least one uppercase letter.",
+                    status=400
+                ).data
+            )
+
+        if not re.search(r"[a-z]", value):
+            raise ValidationError(
+                api_response(
+                    success=False,
+                    message="Password must contain at least one lowercase letter.",
+                    status=400
+                ).data
+            )
+
+        if not re.search(r"\d", value):
+            raise ValidationError(
+                api_response(
+                    success=False,
+                    message="Password must contain at least one number.",
+                    status=400
+                ).data
+            )
+
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
+            raise ValidationError(
+                api_response(
+                    success=False,
+                    message="Password must contain at least one special character.",
+                    status=400
+                ).data
+            )
+
+        return make_password(value)
 
 
 class UserProfileSerializer(ModelSerializer):
