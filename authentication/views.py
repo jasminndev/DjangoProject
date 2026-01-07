@@ -18,7 +18,8 @@ from app.serializers import PostModelSerializer
 from authentication.models import Follow
 from authentication.models import User
 from authentication.serializers import UserModelSerializer, VerifyCodeSerializer, UserUpdateModelSerializer, \
-    UserProfileSerializer, FollowModelSerializer, PublicUserSerializer, UserProfileSecondSerializer
+    UserProfileSerializer, FollowModelSerializer, PublicUserSerializer, UserProfileSecondSerializer, \
+    UserLanguageSerializer
 from authentication.tasks import send_code_email
 from core.functions import api_response
 from root.settings import redis
@@ -311,3 +312,11 @@ class UserFollowingAPIView(APIView):
             message="Following list retrieved successfully",
             data=serializer.data
         )
+
+
+##################################### SETTINGS ########################################
+class UpdateLanguageAPIView(UpdateAPIView):
+    serializer_class = UserLanguageSerializer
+
+    def get_object(self):
+        return self.request.user

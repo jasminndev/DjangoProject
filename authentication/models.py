@@ -1,10 +1,17 @@
 from ckeditor.fields import RichTextField
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db.models import ImageField, Model, ForeignKey, CASCADE
-from django.db.models.fields import EmailField, DateTimeField
+from django.db.models.fields import EmailField, DateTimeField, CharField
 
 
 class User(AbstractUser):
+    LANGUAGE_CHOICES = [
+        ('en', 'English'),
+        ('ru', 'Русский'),
+        ('uz', 'O‘zbekcha'),
+    ]
+
+    lang = CharField(max_length=5, choices=LANGUAGE_CHOICES, default='en')
     email = EmailField(unique=True)
     avatar = ImageField(upload_to='avatars/%Y/%m/%d/', null=True, blank=True)
     bio = RichTextField(null=True, blank=True)

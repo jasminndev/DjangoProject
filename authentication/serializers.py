@@ -230,3 +230,9 @@ class PublicUserSerializer(ModelSerializer):
                 following=obj
             ).exists()
         return False
+
+
+class UserLanguageSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('lang',)
