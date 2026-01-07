@@ -16,7 +16,7 @@ class UserModelSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name', 'username', 'email', 'password', 'avatar', 'bio',)
-        read_only_fields = ('id', 'date_joined')
+        read_only_fields = ('id', 'date_joined', 'is_deleted')
 
     def validate_email(self, value):
         try:

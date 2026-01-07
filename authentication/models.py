@@ -1,7 +1,8 @@
 from ckeditor.fields import RichTextField
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db.models import ImageField, Model, ForeignKey, CASCADE
-from django.db.models.fields import EmailField, DateTimeField, CharField
+from django.db.models.fields import EmailField, DateTimeField, CharField, BooleanField
+from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
@@ -16,6 +17,7 @@ class User(AbstractUser):
     avatar = ImageField(upload_to='avatars/%Y/%m/%d/', null=True, blank=True)
     bio = RichTextField(null=True, blank=True)
     updated_at = DateTimeField(auto_now=True)
+    is_deleted = BooleanField(default=False)
 
     objects = UserManager()
 
@@ -46,10 +48,20 @@ class Follow(Model):
     class Meta:
         ordering = ('-created_at',)
         unique_together = ('follower', 'following')
+        verbose_name = _('Follow')
+        verbose_name_plural = _('Follows')
 
-    follower = ForeignKey('authentication.User', on_delete=CASCADE, related_name='following')
-    following = ForeignKey('authentication.User', on_delete=CASCADE, related_name='followers')
-    created_at = DateTimeField(auto_now_add=True)
+    follower = ForeignKey(
+        'authentication.User',
+        on_delete=CASCADE,
+        related_name='following',
+        verbose_name=_('Follower'))
+    following = ForeignKey(
+        'authentication.User',
+        on_delete=CASCADE,
+        related_name='followers',
+        verbose_name=_('Following'))
+    created_at = DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
 
     def __str__(self):
         return f"{self.follower.username} follows {self.following.username}"

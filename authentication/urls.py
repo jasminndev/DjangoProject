@@ -8,7 +8,7 @@ from authentication.views import (
     SuggestedUsersAPIView, UserProfileByUsernameAPIView,
     UserPostsAPIView, FollowUserAPIView,
     UnfollowUserAPIView, UserFollowersAPIView,
-    UserFollowingAPIView
+    UserFollowingAPIView, UpdateLanguageAPIView
 )
 
 urlpatterns = [
@@ -33,4 +33,8 @@ urlpatterns += [
     path('users/<str:username>/unfollow/', UnfollowUserAPIView.as_view()),
     path('users/<str:username>/followers/', UserFollowersAPIView.as_view()),
     path('users/<str:username>/following/', UserFollowingAPIView.as_view()),
+]
+
+urlpatterns += [
+    path('user/me/language/', UpdateLanguageAPIView.as_view()),
 ]

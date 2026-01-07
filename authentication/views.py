@@ -315,8 +315,14 @@ class UserFollowingAPIView(APIView):
 
 
 ##################################### SETTINGS ########################################
+@extend_schema(tags=['settings', 'lang'])
 class UpdateLanguageAPIView(UpdateAPIView):
     serializer_class = UserLanguageSerializer
 
     def get_object(self):
         return self.request.user
+
+
+
+
+

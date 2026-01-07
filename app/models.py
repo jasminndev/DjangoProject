@@ -1,4 +1,5 @@
 from django.db.models import Model, ForeignKey, CASCADE, TextField, DateTimeField, ImageField, BooleanField
+from django.utils.translation import gettext_lazy as _
 
 
 class Post(Model):
@@ -11,6 +12,8 @@ class Post(Model):
 
     class Meta:
         ordering = ('-created_at',)
+        verbose_name = _('Post')
+        verbose_name_plural = _('Posts')
 
     def __str__(self):
         return f"Post by {self.user.username} ({self.created_at})"
