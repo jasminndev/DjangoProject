@@ -3,6 +3,7 @@ from datetime import timedelta
 from celery.utils.time import timezone
 from django.db.models import Count, Q, F
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView, DestroyAPIView, RetrieveAPIView, UpdateAPIView, \
@@ -28,7 +29,7 @@ class PostCreateAPIView(CreateAPIView):
         response = super().create(request, *args, **kwargs)
         return api_response(
             success=True,
-            message="Post created successfully",
+            message=_("Post created successfully"),
             data=response.data,
             status=status.HTTP_201_CREATED
         )
@@ -43,7 +44,7 @@ class PostListAPIView(ListAPIView):
         response = super().list(request, *args, **kwargs)
         return api_response(
             success=True,
-            message="Posts retrieved successfully",
+            message=_("Posts retrieved successfully"),
             data=response.data
         )
 
@@ -59,7 +60,7 @@ class PostDeleteAPIView(DestroyAPIView):
         super().destroy(request, *args, **kwargs)
         return api_response(
             success=True,
-            message="Post deleted successfully",
+            message=_("Post deleted successfully"),
             data=None
         )
 
@@ -75,7 +76,7 @@ class PostUpdateAPIView(UpdateAPIView):
         response = super().update(request, *args, **kwargs)
         return api_response(
             success=True,
-            message="Post updated successfully",
+            message=_("Post updated successfully"),
             data=response.data
         )
 
@@ -97,7 +98,7 @@ class PostDetailAPIView(RetrieveAPIView):
         data['views'] = instance.views.count()
         return api_response(
             success=True,
-            message="Post retrieved successfully",
+            message=_("Post retrieved successfully"),
             data=data
         )
 
@@ -121,7 +122,7 @@ class PostFeedAPIView(ListAPIView):
 
         return api_response(
             success=True,
-            message="Feed retrieved successfully",
+            message=_("Feed retrieved successfully"),
             data=serializer.data
         )
 
@@ -146,7 +147,7 @@ class TopPostsAPIView(ListAPIView):
 
         return api_response(
             success=True,
-            message="Top posts retrieved successfully",
+            message=_("Top posts retrieved successfully"),
             data=serializer.data
         )
 
@@ -165,7 +166,7 @@ class MyPostsAPIView(ListAPIView):
 
         return api_response(
             success=True,
-            message="My posts retrieved successfully",
+            message=_("My posts retrieved successfully"),
             data=serializer.data
         )
 
@@ -184,13 +185,13 @@ class PostLikeAPIView(APIView):
         if not created:
             return api_response(
                 success=False,
-                message="You have already liked this post",
+                message=_("You have already liked this post"),
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         return api_response(
             success=True,
-            message="Post liked successfully",
+            message=_("Post liked successfully"),
             data=None,
             status=status.HTTP_201_CREATED
         )
@@ -206,13 +207,13 @@ class PostUnlikeAPIView(APIView):
             like.delete()
             return api_response(
                 success=True,
-                message="Post unliked successfully",
+                message=_("Post unliked successfully"),
                 data=None
             )
         except Like.DoesNotExist:
             return api_response(
                 success=False,
-                message="You have not liked this post",
+                message=_("You have not liked this post"),
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -230,7 +231,7 @@ class PostLikesListAPIView(ListAPIView):
         response = super().list(request, *args, **kwargs)
         return api_response(
             success=True,
-            message="Post likes retrieved successfully",
+            message=_("Post likes retrieved successfully"),
             data=response.data
         )
 
@@ -251,7 +252,7 @@ class CommentCreateAPIView(CreateAPIView):
         response = super().create(request, *args, **kwargs)
         return api_response(
             success=True,
-            message="Comment created successfully",
+            message=_("Comment created successfully"),
             data=response.data,
             status=status.HTTP_201_CREATED
         )
@@ -268,7 +269,7 @@ class CommentDeleteAPIView(DestroyAPIView):
         super().destroy(request, *args, **kwargs)
         return api_response(
             success=True,
-            message="Comment deleted successfully",
+            message=_("Comment deleted successfully"),
             data=None
         )
 
@@ -285,6 +286,6 @@ class PostCommentsListAPIView(ListAPIView):
         response = super().list(request, *args, **kwargs)
         return api_response(
             success=True,
-            message="Comments retrieved successfully",
+            message=_("Comments retrieved successfully"),
             data=response.data
         )

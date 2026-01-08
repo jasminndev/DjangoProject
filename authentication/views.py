@@ -1,10 +1,11 @@
+import json
 import random
 from http import HTTPStatus
 
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
-from kombu.utils import json
 from rest_framework import status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import GenericAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView, ListAPIView, \
@@ -37,10 +38,10 @@ class UserGenericAPIView(GenericAPIView):
         user = serializer.validated_data
         code = str(random.randrange(10 ** 5, 10 ** 6))
         send_code_email.delay(user, code)
-        redis.set(code, json.dumps(user))
+        redis.setex(code, 300, json.dumps(user))
         return api_response(
             success=True,
-            message="Verification code sent successfully",
+            message=_("Verification code sent successfully"),
             data=None,
             status=HTTPStatus.OK
         )
@@ -58,7 +59,7 @@ class VerifyEmailGenericAPIView(GenericAPIView):
         user = User.objects.create(**user_data)
         return api_response(
             success=True,
-            message="Email verified successfully",
+            message=_("Email verified successfully"),
             data=UserModelSerializer(user).data,
             status=HTTPStatus.CREATED
         )
@@ -103,7 +104,7 @@ class UserUpdateAPIView(UpdateAPIView):
 
         return api_response(
             success=True,
-            message="User updated successfully",
+            message=_("User updated successfully"),
             data=serializer.data
         )
 
@@ -121,7 +122,7 @@ class UserDeleteAPIView(DestroyAPIView):
         self.get_object().delete()
         return api_response(
             success=True,
-            message="User deleted successfully",
+            message=_("User deleted successfully"),
             data=None
         )
 
@@ -139,7 +140,7 @@ class UserDetailAPIView(RetrieveAPIView):
         serializer = self.get_serializer(self.get_object())
         return api_response(
             success=True,
-            message="User profile retrieved successfully",
+            message=_("User profile retrieved successfully"),
             data=serializer.data
         )
 
@@ -161,7 +162,7 @@ class UserListAPIView(ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return api_response(
             success=True,
-            message="Users retrieved successfully",
+            message=_("Users retrieved successfully"),
             data=serializer.data
         )
 
@@ -176,7 +177,7 @@ class UserProfileByUsernameAPIView(RetrieveAPIView):
         serializer = self.get_serializer(self.get_object())
         return api_response(
             success=True,
-            message="User profile retrieved successfully",
+            message=_("User profile retrieved successfully"),
             data=serializer.data
         )
 
@@ -197,7 +198,7 @@ class SuggestedUsersAPIView(ListAPIView):
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return api_response(
             success=True,
-            message="Suggested users retrieved successfully",
+            message=_("Suggested users retrieved successfully"),
             data=serializer.data
         )
 
@@ -214,7 +215,7 @@ class UserPostsAPIView(ListAPIView):
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return api_response(
             success=True,
-            message="User posts retrieved successfully",
+            message=_("User posts retrieved successfully"),
             data=serializer.data
         )
 
@@ -229,14 +230,14 @@ class FollowUserAPIView(APIView):
         except User.DoesNotExist:
             return api_response(
                 success=False,
-                message="User not found",
+                message=_("User not found"),
                 status=status.HTTP_404_NOT_FOUND
             )
 
         if user_to_follow == request.user:
             return api_response(
                 success=False,
-                message='You can not follow yourself',
+                message=_('You can not follow yourself'),
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -248,12 +249,12 @@ class FollowUserAPIView(APIView):
         if not created:
             return api_response(
                 success=False,
-                message='Follow already created',
+                message=_('Follow already created'),
                 status=status.HTTP_400_BAD_REQUEST
             )
         return api_response(
             success=True,
-            message=f'You are now following {user_to_follow.username}',
+            message=f'You are now following {user_to_follow.username}',  ###############################################
             status=status.HTTP_201_CREATED
         )
 
@@ -266,7 +267,7 @@ class UnfollowUserAPIView(APIView):
         except User.DoesNotExist:
             return api_response(
                 success=False,
-                message="User not found",
+                message=_("User not found"),
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -275,13 +276,13 @@ class UnfollowUserAPIView(APIView):
             follow.delete()
             return api_response(
                 success=True,
-                message=f"You have unfollowed {user_to_unfollow.username}",
+                message=f"You have unfollowed {user_to_unfollow.username}",  ########################################
                 data=None
             )
         except Follow.DoesNotExist:
             return api_response(
                 success=False,
-                message="You are not following this user",
+                message=_("You are not following this user"),
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -295,7 +296,7 @@ class UserFollowersAPIView(APIView):
 
         return api_response(
             success=True,
-            message="Followers retrieved successfully",
+            message=_("Followers retrieved successfully"),
             data=serializer.data
         )
 
@@ -309,7 +310,7 @@ class UserFollowingAPIView(APIView):
 
         return api_response(
             success=True,
-            message="Following list retrieved successfully",
+            message=_("Following list retrieved successfully"),
             data=serializer.data
         )
 
@@ -321,8 +322,3 @@ class UpdateLanguageAPIView(UpdateAPIView):
 
     def get_object(self):
         return self.request.user
-
-
-
-
-
