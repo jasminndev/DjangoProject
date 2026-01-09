@@ -12,7 +12,7 @@ class User(AbstractUser):
         ('uz', 'O‘zbekcha'),
     ]
 
-    lang = CharField(max_length=5, choices=LANGUAGE_CHOICES, default='en')
+    language = CharField(max_length=5, choices=LANGUAGE_CHOICES, default='en')
     email = EmailField(unique=True)
     avatar = ImageField(upload_to='avatars/%Y/%m/%d/', null=True, blank=True)
     bio = RichTextField(null=True, blank=True)

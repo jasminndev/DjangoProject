@@ -9,7 +9,7 @@ class Post(Model):
         related_name='posts',
         verbose_name=_('User')
     )
-    image = ImageField(upload_to='posts//%Y/%m/%d/', null=True, blank=True, verbose_name=_('Image'))
+    image = ImageField(upload_to='posts//%Y/%m/%d/', verbose_name=_('Image'))
     caption = TextField(max_length=2200, blank=True, verbose_name=_('Caption'))
     created_at = DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
     updated_at = DateTimeField(auto_now=True, verbose_name=_('Updated at'))

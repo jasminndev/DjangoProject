@@ -1,3 +1,5 @@
+from django.utils.translation import gettext_lazy as _
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
@@ -13,11 +15,19 @@ class CommentModelSerializer(ModelSerializer):
         fields = ('id', 'post', 'user', 'text', 'created_at')
         read_only_fields = ('id', 'created_at', 'user', 'post')
 
+    def validate_text(self, value):
+        if not value or not value.strip():
+            raise ValidationError(_('Comment cannot be empty'))
+        if len(value) > 500:
+            raise ValidationError(_('Comment is too long (maximum 500 characters)'))
+        return value
+
 
 class PostModelSerializer(ModelSerializer):
     user = UserProfileSecondSerializer(read_only=True)
     likes_count = SerializerMethodField()
     comments_count = SerializerMethodField()
+    views_count = SerializerMethodField()
     is_liked = SerializerMethodField()
 
     class Meta:
@@ -36,7 +46,7 @@ class PostModelSerializer(ModelSerializer):
     def get_is_liked(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return obj.likes.filter(user=request.user).exists()
+            return Like.objects.filter(user=request.user, post=obj).exists()
         return False
 
     def update(self, instance, validated_data):
@@ -54,6 +64,24 @@ class PostCreateModelSerializer(ModelSerializer):
         model = Post
         fields = ('id', 'caption', 'user', 'created_at', 'updated_at', 'is_edited')
         read_only_fields = ('id', 'created_at', 'updated_at', 'is_edited')
+
+    def validate_image(self, value):
+        if not value:
+            raise ValidationError(_('Image is required'))
+
+        if value.size > 10 * 1024 * 1024:
+            raise ValidationError(_('Image size cannot be exceed 10MB'))
+
+        allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+        if hasattr(value, 'content_type') and value.content_type not in allowed_types:
+            raise ValidationError(_('Only JPEG, PNG, GIF and WebP images are allowed'))
+
+        return value
+
+    def validate_caption(self, value):
+        if value and len(value) > 2200:
+            raise ValidationError(_('Caption is too long (maximum 2200 characters)'))
+        return value
 
 
 class PostViewModelSerializer(ModelSerializer):

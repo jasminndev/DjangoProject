@@ -3,12 +3,12 @@ import re
 
 from django.contrib.auth.hashers import make_password
 from django.core.validators import validate_email, RegexValidator
+from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField, ReadOnlyField, SerializerMethodField
 from rest_framework.serializers import ModelSerializer, Serializer
 
 from authentication.models import User, Follow
-from core.functions import api_response
 from root.settings import redis
 
 
@@ -22,16 +22,16 @@ class UserModelSerializer(ModelSerializer):
         try:
             validate_email(value)
         except ValidationError:
-            raise ValidationError('Email must be valid!')
+            raise ValidationError(_('Email must be valid!'))
 
         if User.objects.filter(email=value).exists():
-            raise ValidationError('Email already registered!')
+            raise ValidationError(_('Email already registered!'))
 
         return value
 
     username_validation = RegexValidator(
         regex=r'^[a-zA-Z0-9_.]+$',
-        message="Username should contain only letters, numbers and underscores."
+        message=_("Username should contain only letters, numbers and underscores.")
     )
 
     def validate_username(self, value):
@@ -40,76 +40,23 @@ class UserModelSerializer(ModelSerializer):
         reserved = ['admin', 'root', 'null']
 
         if len(value) < 3:
-            raise ValidationError('Username must be at least 3 characters long.')
+            raise ValidationError(_('Username must be at least 3 characters long.'))
         if value.lower() in reserved:
-            raise ValidationError('This username is not valid!')
+            raise ValidationError(_('This username is not valid!'))
         if User.objects.filter(username=value).exists():
-            raise ValidationError('This username is already taken!')
+            raise ValidationError(_('This username is already taken!'))
 
         return value
 
     def validate_password(self, value):
-        if len(value) < 8:
+        VALIDATOR = re.compile(
+            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,64}$'
+        )
+        if not VALIDATOR.match(value):
             raise ValidationError(
-                api_response(
-                    success=False,
-                    message="Password must be at least 8 characters long.",
-                    status=400
-                ).data
-            )
-
-        if len(value) > 64:
-            raise ValidationError(
-                api_response(
-                    success=False,
-                    message="Password must not exceed 64 characters.",
-                    status=400
-                ).data
-            )
-
-        if " " in value:
-            raise ValidationError(
-                api_response(
-                    success=False,
-                    message="Password must not contain spaces.",
-                    status=400
-                ).data
-            )
-
-        if not re.search(r"[A-Z]", value):
-            raise ValidationError(
-                api_response(
-                    success=False,
-                    message="Password must contain at least one uppercase letter.",
-                    status=400
-                ).data
-            )
-
-        if not re.search(r"[a-z]", value):
-            raise ValidationError(
-                api_response(
-                    success=False,
-                    message="Password must contain at least one lowercase letter.",
-                    status=400
-                ).data
-            )
-
-        if not re.search(r"\d", value):
-            raise ValidationError(
-                api_response(
-                    success=False,
-                    message="Password must contain at least one number.",
-                    status=400
-                ).data
-            )
-
-        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
-            raise ValidationError(
-                api_response(
-                    success=False,
-                    message="Password must contain at least one special character.",
-                    status=400
-                ).data
+                _("Password must be 8–64 characters long and include at least "
+                  "one uppercase letter, one lowercase letter, one number, "
+                  "and one special character.")
             )
 
         return make_password(value)
@@ -147,13 +94,14 @@ class UserProfileSecondSerializer(ModelSerializer):
 class VerifyCodeSerializer(Serializer):
     code = CharField(
         max_length=6,
-        validators=[RegexValidator(r'^\d{6}$', 'Code must be 6 digits.')]
+        validators=[RegexValidator(r'^\d{6}$', _('Code must be 6 digits.'))]
     )
 
     def validate_code(self, value):
-        data = redis.get(value)
+        redis_key = f"verify:{value}"
+        data = redis.get(redis_key)
         if not data:
-            raise ValidationError('Invalid code!')
+            raise ValidationError(_('Invalid or expired code!'))
         user_data = json.loads(data)
         self.context['user_data'] = user_data
         return value
@@ -166,7 +114,7 @@ class UserUpdateModelSerializer(ModelSerializer):
 
     username_validation = RegexValidator(
         regex=r'^[a-zA-Z0-9_.]+$',
-        message="Username should contain only letters, numbers and underscores."
+        message=_("Username should contain only letters, numbers and underscores.")
     )
 
     def validate_username(self, value):
@@ -175,13 +123,13 @@ class UserUpdateModelSerializer(ModelSerializer):
         reserved = ['admin', 'user', 'root', 'null']
 
         if len(value) < 3:
-            raise ValidationError('Username must be at least 3 characters long.')
+            raise ValidationError(_('Username must be at least 3 characters long.'))
         if value.lower() in reserved:
-            raise ValidationError('This username is not valid!')
+            raise ValidationError(_('This username is not valid!'))
 
         user = self.instance
         if User.objects.exclude(id=user.id).filter(username=value).exists():
-            raise ValidationError('This username is already taken!')
+            raise ValidationError(_('This username is already taken!'))
 
         return value
 
@@ -235,4 +183,4 @@ class PublicUserSerializer(ModelSerializer):
 class UserLanguageSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ('lang',)
+        fields = ('language',)

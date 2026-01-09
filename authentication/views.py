@@ -2,6 +2,7 @@ import json
 import random
 from http import HTTPStatus
 
+from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -35,10 +36,12 @@ class UserGenericAPIView(GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data
+
+        user_data = serializer.validated_data
         code = str(random.randrange(10 ** 5, 10 ** 6))
-        send_code_email.delay(user, code)
-        redis.setex(code, 300, json.dumps(user))
+        redis_key = f"verify:{code}"
+        send_code_email.delay(user_data, code)
+        redis.setex(redis_key, 300, json.dumps(user_data))
         return api_response(
             success=True,
             message=_("Verification code sent successfully"),
@@ -55,8 +58,23 @@ class VerifyEmailGenericAPIView(GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user_data = serializer.context.get('user_data')
-        user = User.objects.create(**user_data)
+        code = serializer.validated_data.get("code")
+        redis_key = f"verify:{code}"
+        raw_data = redis.get(redis_key)
+
+        if not raw_data:
+            return api_response(
+                success=False,
+                message=_("Verification code is invalid or expired."),
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user_data = json.loads(raw_data)
+
+        with transaction.atomic():
+            user = User.objects.create(**user_data)
+            redis.delete(redis_key)
+
         return api_response(
             success=True,
             message=_("Email verified successfully"),
@@ -112,7 +130,6 @@ class UserUpdateAPIView(UpdateAPIView):
 @extend_schema(tags=['user'])
 class UserDeleteAPIView(DestroyAPIView):
     serializer_class = UserModelSerializer
-    lookup_field = 'pk'
     queryset = User.objects.all()
 
     def get_object(self):
@@ -172,6 +189,9 @@ class UserProfileByUsernameAPIView(RetrieveAPIView):
     queryset = User.objects.all()
     lookup_field = 'username'
     serializer_class = PublicUserSerializer
+
+    def get_object(self):
+        return get_object_or_404(User, username=self.kwargs['username'])
 
     def retrieve(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.get_object())
@@ -254,7 +274,9 @@ class FollowUserAPIView(APIView):
             )
         return api_response(
             success=True,
-            message=f'You are now following {user_to_follow.username}',  ###############################################
+            message=_("You are now following %(username)s") % {
+                "username": user_to_follow.username
+            },
             status=status.HTTP_201_CREATED
         )
 
@@ -276,7 +298,9 @@ class UnfollowUserAPIView(APIView):
             follow.delete()
             return api_response(
                 success=True,
-                message=f"You have unfollowed {user_to_unfollow.username}",  ########################################
+                message=_("You have unfollowed %(username)s") % {
+                    "username": user_to_unfollow.username
+                },
                 data=None
             )
         except Follow.DoesNotExist:
@@ -322,3 +346,18 @@ class UpdateLanguageAPIView(UpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(
+            self.get_object(),
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return api_response(
+            success=True,
+            message=_("Language updated successfully"),
+            data=serializer.data
+        )
