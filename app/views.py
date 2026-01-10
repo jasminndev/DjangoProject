@@ -3,17 +3,19 @@ from datetime import timedelta
 from celery.utils.time import timezone
 from django.db.models import Count, Q, F
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView, DestroyAPIView, RetrieveAPIView, UpdateAPIView, \
     get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 from app.models import Post, PostView, Comment, Like
 from app.permissions import IsOwnerOrReadOnly, IsOwnerOrAdmin
 from app.serializers import PostModelSerializer, CommentModelSerializer, LikeModelSerializer
 from authentication.models import Follow
+from authentication.permissions import IsActiveUser
 from core.functions import api_response
 
 
@@ -21,6 +23,7 @@ from core.functions import api_response
 @extend_schema(tags=['post'])
 class PostCreateAPIView(CreateAPIView):
     serializer_class = PostModelSerializer
+    permission_classes = [IsActiveUser]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -39,6 +42,7 @@ class PostCreateAPIView(CreateAPIView):
 class PostListAPIView(ListAPIView):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostModelSerializer
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
@@ -53,7 +57,7 @@ class PostListAPIView(ListAPIView):
 class PostDeleteAPIView(DestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostModelSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly, IsActiveUser]
     lookup_field = 'pk'
 
     def destroy(self, request, *args, **kwargs):
@@ -69,7 +73,7 @@ class PostDeleteAPIView(DestroyAPIView):
 class PostUpdateAPIView(UpdateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostModelSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly, IsActiveUser]
     lookup_field = 'pk'
 
     def update(self, request, *args, **kwargs):
@@ -86,6 +90,7 @@ class PostDetailAPIView(RetrieveAPIView):
     queryset = Post.objects.all()
     serializer_class = PostModelSerializer
     lookup_field = 'pk'
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -106,6 +111,7 @@ class PostDetailAPIView(RetrieveAPIView):
 @extend_schema(tags=['post-feed'])
 class PostFeedAPIView(ListAPIView):
     serializer_class = PostModelSerializer
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get_queryset(self):
         user = self.request.user
@@ -130,6 +136,7 @@ class PostFeedAPIView(ListAPIView):
 @extend_schema(tags=['post-feed'])
 class TopPostsAPIView(ListAPIView):
     serializer_class = PostModelSerializer
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get_queryset(self):
         time_threshold = timezone.now() - timedelta(days=7)
@@ -152,9 +159,10 @@ class TopPostsAPIView(ListAPIView):
         )
 
 
-@extend_schema(tags=['post'])
+@extend_schema(tags=['profile'])
 class MyPostsAPIView(ListAPIView):
     serializer_class = PostModelSerializer
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get_queryset(self):
         return Post.objects.filter(
@@ -174,6 +182,8 @@ class MyPostsAPIView(ListAPIView):
 ###################################### LIKE ######################################
 @extend_schema(tags=['like'])
 class PostLikeAPIView(APIView):
+    permission_classes = [IsActiveUser]
+
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
 
@@ -199,6 +209,8 @@ class PostLikeAPIView(APIView):
 
 @extend_schema(tags=['like'])
 class PostUnlikeAPIView(APIView):
+    permission_classes = [IsActiveUser]
+
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
 
@@ -221,6 +233,7 @@ class PostUnlikeAPIView(APIView):
 @extend_schema(tags=['like'])
 class PostLikesListAPIView(ListAPIView):
     serializer_class = LikeModelSerializer
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get_queryset(self):
         return Like.objects.filter(
@@ -240,6 +253,7 @@ class PostLikesListAPIView(ListAPIView):
 @extend_schema(tags=['comment'])
 class CommentCreateAPIView(CreateAPIView):
     serializer_class = CommentModelSerializer
+    permission_classes = [IsActiveUser]
 
     def perform_create(self, serializer):
         post = get_object_or_404(Post, id=self.kwargs["post_id"])
@@ -263,7 +277,7 @@ class CommentDeleteAPIView(DestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentModelSerializer
     lookup_field = 'pk'
-    permission_classes = [IsOwnerOrAdmin]
+    permission_classes = [IsOwnerOrAdmin, IsActiveUser]
 
     def destroy(self, request, *args, **kwargs):
         super().destroy(request, *args, **kwargs)
@@ -277,6 +291,7 @@ class CommentDeleteAPIView(DestroyAPIView):
 @extend_schema(tags=['comment'])
 class PostCommentsListAPIView(ListAPIView):
     serializer_class = CommentModelSerializer
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get_queryset(self):
         post_id = self.kwargs.get('post_id')

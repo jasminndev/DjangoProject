@@ -5,13 +5,13 @@ from http import HTTPStatus
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import GenericAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView, ListAPIView, \
     get_object_or_404
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -19,6 +19,7 @@ from app.models import Post
 from app.serializers import PostModelSerializer
 from authentication.models import Follow
 from authentication.models import User
+from authentication.permissions import IsActiveUser
 from authentication.serializers import UserModelSerializer, VerifyCodeSerializer, UserUpdateModelSerializer, \
     UserProfileSerializer, FollowModelSerializer, PublicUserSerializer, UserProfileSecondSerializer, \
     UserLanguageSerializer
@@ -85,16 +86,35 @@ class VerifyEmailGenericAPIView(GenericAPIView):
 
 @extend_schema(tags=['auth'])
 class CustomTokenObtainPairView(TokenObtainPairView):
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
+    permission_classes = [AllowAny]
 
-        if response.status_code == HTTPStatus.OK:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            user = serializer.user
-            user.last_login = timezone.now()
-            user.save(update_fields=['last_login'])
-        return response
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.user
+
+        if user.is_deleted:
+            user.is_deleted = False
+            user.deleted_at = None
+
+        user.last_login = timezone.now()
+        user.save(update_fields=['is_deleted', 'deleted_at', 'last_login'])
+
+        response_data = {
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+            },
+            'tokens': serializer.validated_data,
+        }
+
+        return api_response(
+            success=True,
+            message=_("Login successful"),
+            data=response_data
+        )
 
 
 @extend_schema(tags=['auth'])
@@ -107,6 +127,7 @@ class CustomTokenRefreshView(TokenRefreshView):
 class UserUpdateAPIView(UpdateAPIView):
     serializer_class = UserUpdateModelSerializer
     queryset = User.objects.all()
+    permission_classes = [IsActiveUser]
 
     def get_object(self):
         return self.request.user
@@ -129,26 +150,26 @@ class UserUpdateAPIView(UpdateAPIView):
 
 @extend_schema(tags=['user'])
 class UserDeleteAPIView(DestroyAPIView):
-    serializer_class = UserModelSerializer
-    queryset = User.objects.all()
-
-    def get_object(self):
-        return self.request.user
+    permission_classes = [IsActiveUser]
 
     def destroy(self, request, *args, **kwargs):
-        self.get_object().delete()
+        user = request.user
+        user.is_deleted = True
+        user.deleted_at = timezone.now()
+        user.save(update_fields=['is_deleted', 'deleted_at'])
+
         return api_response(
             success=True,
             message=_("User deleted successfully"),
-            data=None
         )
 
 
-@extend_schema(tags=['user'])
+@extend_schema(tags=['profile'])
 class UserDetailAPIView(RetrieveAPIView):
     queryset = User.objects.all()
     lookup_field = 'pk'
     serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get_object(self):
         return self.request.user
@@ -168,6 +189,7 @@ class UserListAPIView(ListAPIView):
     serializer_class = UserProfileSecondSerializer
     filter_backends = [SearchFilter]
     search_fields = ['username', 'first_name', 'last_name']
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -189,6 +211,7 @@ class UserProfileByUsernameAPIView(RetrieveAPIView):
     queryset = User.objects.all()
     lookup_field = 'username'
     serializer_class = PublicUserSerializer
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get_object(self):
         return get_object_or_404(User, username=self.kwargs['username'])
@@ -206,6 +229,7 @@ class UserProfileByUsernameAPIView(RetrieveAPIView):
 class SuggestedUsersAPIView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileSecondSerializer
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get_queryset(self):
         user = self.request.user
@@ -226,6 +250,7 @@ class SuggestedUsersAPIView(ListAPIView):
 @extend_schema(tags=['user'])
 class UserPostsAPIView(ListAPIView):
     serializer_class = PostModelSerializer
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs["username"])
@@ -242,8 +267,10 @@ class UserPostsAPIView(ListAPIView):
 
 ##################################### FOLLOW ########################################
 
-@extend_schema(tags=['follow'])
+@extend_schema(tags=['follow/unfollow'])
 class FollowUserAPIView(APIView):
+    permission_classes = [IsActiveUser]
+
     def post(self, request, username):
         try:
             user_to_follow = User.objects.get(username=username)
@@ -281,8 +308,10 @@ class FollowUserAPIView(APIView):
         )
 
 
-@extend_schema(tags=['follow'])
+@extend_schema(tags=['follow/unfollow'])
 class UnfollowUserAPIView(APIView):
+    permission_classes = [IsActiveUser]
+
     def post(self, request, username):
         try:
             user_to_unfollow = User.objects.get(username=username)
@@ -311,8 +340,10 @@ class UnfollowUserAPIView(APIView):
             )
 
 
-@extend_schema(tags=['follow'])
+@extend_schema(tags=['profile'])
 class UserFollowersAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsActiveUser]
+
     def get(self, request, username):
         user = get_object_or_404(User, username=username)
         followers = Follow.objects.filter(following=user)
@@ -325,8 +356,10 @@ class UserFollowersAPIView(APIView):
         )
 
 
-@extend_schema(tags=['follow'])
+@extend_schema(tags=['profile'])
 class UserFollowingAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsActiveUser]
+
     def get(self, request, username):
         user = get_object_or_404(User, username=username)
         following = Follow.objects.filter(follower=user)
@@ -340,9 +373,10 @@ class UserFollowingAPIView(APIView):
 
 
 ##################################### SETTINGS ########################################
-@extend_schema(tags=['settings', 'lang'])
+@extend_schema(tags=['settings, language'])
 class UpdateLanguageAPIView(UpdateAPIView):
     serializer_class = UserLanguageSerializer
+    permission_classes = [IsActiveUser]
 
     def get_object(self):
         return self.request.user

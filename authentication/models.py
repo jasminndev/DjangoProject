@@ -2,22 +2,21 @@ from ckeditor.fields import RichTextField
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db.models import ImageField, Model, ForeignKey, CASCADE
 from django.db.models.fields import EmailField, DateTimeField, CharField, BooleanField
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 
 class User(AbstractUser):
-    LANGUAGE_CHOICES = [
-        ('en', 'English'),
-        ('ru', 'Русский'),
-        ('uz', 'O‘zbekcha'),
-    ]
-
-    language = CharField(max_length=5, choices=LANGUAGE_CHOICES, default='en')
+    language = CharField(
+        max_length=5,
+        choices=[('en', 'English'), ('uz', 'Uzbek'), ('ru', 'Русский')],
+        default='en'
+    )
     email = EmailField(unique=True)
     avatar = ImageField(upload_to='avatars/%Y/%m/%d/', null=True, blank=True)
     bio = RichTextField(null=True, blank=True)
     updated_at = DateTimeField(auto_now=True)
     is_deleted = BooleanField(default=False)
+    deleted_at = DateTimeField(null=True, blank=True)
 
     objects = UserManager()
 

@@ -13,3 +13,11 @@ install:
 
 run:
 	python3 ./manage.py runserver
+
+lang:
+	django-admin makemessages -l uz
+	django-admin makemessages -l ru
+	django-admin makemessages -l en
+
+compile:
+	django-admin compilemessages

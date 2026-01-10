@@ -3,7 +3,7 @@ import re
 
 from django.contrib.auth.hashers import make_password
 from django.core.validators import validate_email, RegexValidator
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField, ReadOnlyField, SerializerMethodField
 from rest_framework.serializers import ModelSerializer, Serializer

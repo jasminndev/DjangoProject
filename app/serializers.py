@@ -1,4 +1,4 @@
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
@@ -27,7 +27,6 @@ class PostModelSerializer(ModelSerializer):
     user = UserProfileSecondSerializer(read_only=True)
     likes_count = SerializerMethodField()
     comments_count = SerializerMethodField()
-    views_count = SerializerMethodField()
     is_liked = SerializerMethodField()
 
     class Meta:

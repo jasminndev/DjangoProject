@@ -1,5 +1,5 @@
 from django.db.models import Model, ForeignKey, CASCADE, TextField, DateTimeField, ImageField, BooleanField
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 
 class Post(Model):

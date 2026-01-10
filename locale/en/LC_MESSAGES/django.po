@@ -1,0 +1,303 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-09 12:21+0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: app/models.py:10 app/models.py:55 app/models.py:70 app/models.py:101
+msgid "User"
+msgstr ""
+
+#: app/models.py:12
+msgid "Image"
+msgstr ""
+
+#: app/models.py:13
+msgid "Caption"
+msgstr ""
+
+#: app/models.py:14 app/models.py:73 app/models.py:103
+#: authentication/models.py:65
+msgid "Created at"
+msgstr ""
+
+#: app/models.py:15
+msgid "Updated at"
+msgstr ""
+
+#: app/models.py:16
+msgid "Is edited"
+msgstr ""
+
+#: app/models.py:20 app/models.py:49 app/models.py:64 app/models.py:95
+msgid "Post"
+msgstr ""
+
+#: app/models.py:21
+msgid "Posts"
+msgstr ""
+
+#: app/models.py:42
+msgid "Post View"
+msgstr ""
+
+#: app/models.py:43
+msgid "Post Views"
+msgstr ""
+
+#: app/models.py:72
+msgid "Comment text"
+msgstr ""
+
+#: app/models.py:77
+msgid "Comment"
+msgstr ""
+
+#: app/models.py:78
+msgid "Comments"
+msgstr ""
+
+#: app/models.py:88
+msgid "Like"
+msgstr ""
+
+#: app/models.py:89
+msgid "Likes"
+msgstr ""
+
+#: app/serializers.py:20
+msgid "Comment cannot be empty"
+msgstr ""
+
+#: app/serializers.py:22
+msgid "Comment is too long (maximum 500 characters)"
+msgstr ""
+
+#: app/serializers.py:69
+msgid "Image is required"
+msgstr ""
+
+#: app/serializers.py:72
+msgid "Image size cannot be exceed 10MB"
+msgstr ""
+
+#: app/serializers.py:76
+msgid "Only JPEG, PNG, GIF and WebP images are allowed"
+msgstr ""
+
+#: app/serializers.py:82
+msgid "Caption is too long (maximum 2200 characters)"
+msgstr ""
+
+#: app/views.py:35
+msgid "Post created successfully"
+msgstr ""
+
+#: app/views.py:51
+msgid "Posts retrieved successfully"
+msgstr ""
+
+#: app/views.py:67
+msgid "Post deleted successfully"
+msgstr ""
+
+#: app/views.py:83
+msgid "Post updated successfully"
+msgstr ""
+
+#: app/views.py:106
+msgid "Post retrieved successfully"
+msgstr ""
+
+#: app/views.py:131
+msgid "Feed retrieved successfully"
+msgstr ""
+
+#: app/views.py:157
+msgid "Top posts retrieved successfully"
+msgstr ""
+
+#: app/views.py:177
+msgid "My posts retrieved successfully"
+msgstr ""
+
+#: app/views.py:198
+msgid "You have already liked this post"
+msgstr ""
+
+#: app/views.py:204
+msgid "Post liked successfully"
+msgstr ""
+
+#: app/views.py:222
+msgid "Post unliked successfully"
+msgstr ""
+
+#: app/views.py:228
+msgid "You have not liked this post"
+msgstr ""
+
+#: app/views.py:247
+msgid "Post likes retrieved successfully"
+msgstr ""
+
+#: app/views.py:269
+msgid "Comment created successfully"
+msgstr ""
+
+#: app/views.py:286
+msgid "Comment deleted successfully"
+msgstr ""
+
+#: app/views.py:304
+msgid "Comments retrieved successfully"
+msgstr ""
+
+#: authentication/models.py:52
+msgid "Follow"
+msgstr ""
+
+#: authentication/models.py:53
+msgid "Follows"
+msgstr ""
+
+#: authentication/models.py:59
+msgid "Follower"
+msgstr ""
+
+#: authentication/models.py:64
+msgid "Following"
+msgstr ""
+
+#: authentication/permissions.py:18
+msgid "Your account is deactivated."
+msgstr ""
+
+#: authentication/serializers.py:25
+msgid "Email must be valid!"
+msgstr ""
+
+#: authentication/serializers.py:28
+msgid "Email already registered!"
+msgstr ""
+
+#: authentication/serializers.py:34 authentication/serializers.py:117
+msgid "Username should contain only letters, numbers and underscores."
+msgstr ""
+
+#: authentication/serializers.py:43 authentication/serializers.py:126
+msgid "Username must be at least 3 characters long."
+msgstr ""
+
+#: authentication/serializers.py:45 authentication/serializers.py:128
+msgid "This username is not valid!"
+msgstr ""
+
+#: authentication/serializers.py:47 authentication/serializers.py:132
+msgid "This username is already taken!"
+msgstr ""
+
+#: authentication/serializers.py:57
+msgid ""
+"Password must be 8–64 characters long and include at least one uppercase "
+"letter, one lowercase letter, one number, and one special character."
+msgstr ""
+
+#: authentication/serializers.py:97
+msgid "Code must be 6 digits."
+msgstr ""
+
+#: authentication/serializers.py:104
+msgid "Invalid or expired code!"
+msgstr ""
+
+#: authentication/views.py:48
+msgid "Verification code sent successfully"
+msgstr ""
+
+#: authentication/views.py:69
+msgid "Verification code is invalid or expired."
+msgstr ""
+
+#: authentication/views.py:81
+msgid "Email verified successfully"
+msgstr ""
+
+#: authentication/views.py:115
+msgid "Login successful"
+msgstr ""
+
+#: authentication/views.py:146
+msgid "User updated successfully"
+msgstr ""
+
+#: authentication/views.py:163
+msgid "User deleted successfully"
+msgstr ""
+
+#: authentication/views.py:181 authentication/views.py:223
+msgid "User profile retrieved successfully"
+msgstr ""
+
+#: authentication/views.py:204
+msgid "Users retrieved successfully"
+msgstr ""
+
+#: authentication/views.py:245
+msgid "Suggested users retrieved successfully"
+msgstr ""
+
+#: authentication/views.py:263
+msgid "User posts retrieved successfully"
+msgstr ""
+
+#: authentication/views.py:280 authentication/views.py:321
+msgid "User not found"
+msgstr ""
+
+#: authentication/views.py:287
+msgid "You can not follow yourself"
+msgstr ""
+
+#: authentication/views.py:299
+msgid "Follow already created"
+msgstr ""
+
+#: authentication/views.py:304
+#, python-format
+msgid "You are now following %(username)s"
+msgstr ""
+
+#: authentication/views.py:330
+#, python-format
+msgid "You have unfollowed %(username)s"
+msgstr ""
+
+#: authentication/views.py:338
+msgid "You are not following this user"
+msgstr ""
+
+#: authentication/views.py:354
+msgid "Followers retrieved successfully"
+msgstr ""
+
+#: authentication/views.py:370
+msgid "Following list retrieved successfully"
+msgstr ""
+
+#: authentication/views.py:395
+msgid "Language updated successfully"
+msgstr ""

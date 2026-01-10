@@ -8,7 +8,7 @@ from authentication.views import (
     SuggestedUsersAPIView, UserProfileByUsernameAPIView,
     UserPostsAPIView, FollowUserAPIView,
     UnfollowUserAPIView, UserFollowersAPIView,
-    UserFollowingAPIView, UpdateLanguageAPIView
+    UserFollowingAPIView, UpdateLanguageAPIView,
 )
 
 urlpatterns = [

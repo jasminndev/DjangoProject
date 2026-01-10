@@ -33,16 +33,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
 ]
 
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
 ROOT_URLCONF = 'root.urls'
 
 TEMPLATES = [
@@ -85,7 +75,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 LANGUAGES = [
     ('en', 'English'),
@@ -106,8 +96,8 @@ LOCALE_PATHS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
+    "django.middleware.locale.LocaleMiddleware",
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -123,13 +113,12 @@ MEDIA_ROOT = join(BASE_DIR, 'media')
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        "authentication.permissions.IsActiveUser",
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
 }
 
 SPECTACULAR_SETTINGS = {
@@ -141,6 +130,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 SIMPLE_JWT = {
+    "UPDATE_LAST_LOGIN": True,
     'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
 }

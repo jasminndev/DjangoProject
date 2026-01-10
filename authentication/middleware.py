@@ -1,17 +1,17 @@
 from django.utils import translation
 
-
 class UserLanguageMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        user = getattr(request, 'user', None)
+        language = 'en'
 
-        if user and user.is_authenticated and hasattr(user, 'language'):
-            translation.activate(user.language)
-            request.LANGUAGE_CODE = user.language
+        if request.user.is_authenticated:
+            language = getattr(request.user, 'language', 'en') or 'en'
+
+        translation.activate(language)
+        request.LANGUAGE_CODE = language
 
         response = self.get_response(request)
-        translation.deactivate()
         return response
