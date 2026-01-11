@@ -4,7 +4,7 @@ from datetime import timedelta
 from celery.utils.time import timezone
 from django.db.models import Count, Q, F
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView, DestroyAPIView, RetrieveAPIView, UpdateAPIView, \
@@ -19,6 +19,7 @@ from app.serializers import PostModelSerializer, CommentModelSerializer, LikeMod
 from authentication.models import Follow
 from authentication.permissions import IsActiveUser
 from core.functions import api_response
+from core.mixins import LanguageMixin
 from core.utils import RequestLoggingMiddleware
 
 logger = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 ###################################### POST ######################################
 @extend_schema(tags=['post'])
-class PostCreateAPIView(CreateAPIView):
+class PostCreateAPIView(LanguageMixin, CreateAPIView):
     serializer_class = PostModelSerializer
     permission_classes = [IsActiveUser]
 
@@ -47,7 +48,7 @@ class PostCreateAPIView(CreateAPIView):
 
 
 @extend_schema(tags=['post'])
-class PostListAPIView(ListAPIView):
+class PostListAPIView(LanguageMixin, ListAPIView):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostModelSerializer
     permission_classes = [IsAuthenticated, IsActiveUser]
@@ -64,7 +65,7 @@ class PostListAPIView(ListAPIView):
 
 
 @extend_schema(tags=['post'])
-class PostDeleteAPIView(DestroyAPIView):
+class PostDeleteAPIView(LanguageMixin, DestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostModelSerializer
     permission_classes = [IsOwnerOrReadOnly, IsActiveUser]
@@ -92,7 +93,7 @@ class PostDeleteAPIView(DestroyAPIView):
 
 
 @extend_schema(tags=['post'])
-class PostUpdateAPIView(UpdateAPIView):
+class PostUpdateAPIView(LanguageMixin, UpdateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostModelSerializer
     permission_classes = [IsOwnerOrReadOnly, IsActiveUser]
@@ -112,7 +113,7 @@ class PostUpdateAPIView(UpdateAPIView):
 
 
 @extend_schema(tags=['post'])
-class PostDetailAPIView(RetrieveAPIView):
+class PostDetailAPIView(LanguageMixin, RetrieveAPIView):
     queryset = Post.objects.all()
     serializer_class = PostModelSerializer
     lookup_field = 'pk'
@@ -137,7 +138,7 @@ class PostDetailAPIView(RetrieveAPIView):
 
 
 @extend_schema(tags=['post-feed'])
-class PostFeedAPIView(ListAPIView):
+class PostFeedAPIView(LanguageMixin, ListAPIView):
     serializer_class = PostModelSerializer
     permission_classes = [IsAuthenticated, IsActiveUser]
 
@@ -160,7 +161,7 @@ class PostFeedAPIView(ListAPIView):
 
 
 @extend_schema(tags=['post-feed'])
-class TopPostsAPIView(ListAPIView):
+class TopPostsAPIView(LanguageMixin, ListAPIView):
     serializer_class = PostModelSerializer
     permission_classes = [IsAuthenticated, IsActiveUser]
 
@@ -186,7 +187,7 @@ class TopPostsAPIView(ListAPIView):
 
 
 @extend_schema(tags=['profile'])
-class MyPostsAPIView(ListAPIView):
+class MyPostsAPIView(LanguageMixin, ListAPIView):
     serializer_class = PostModelSerializer
     permission_classes = [IsAuthenticated, IsActiveUser]
 
@@ -208,7 +209,7 @@ class MyPostsAPIView(ListAPIView):
 
 ###################################### LIKE ######################################
 @extend_schema(tags=['like'])
-class PostLikeAPIView(APIView):
+class PostLikeAPIView(LanguageMixin, APIView):
     permission_classes = [IsActiveUser]
 
     def post(self, request, pk):
@@ -240,7 +241,7 @@ class PostLikeAPIView(APIView):
 
 
 @extend_schema(tags=['like'])
-class PostUnlikeAPIView(APIView):
+class PostUnlikeAPIView(LanguageMixin, APIView):
     permission_classes = [IsActiveUser]
 
     def post(self, request, pk):
@@ -268,7 +269,7 @@ class PostUnlikeAPIView(APIView):
 
 
 @extend_schema(tags=['like'])
-class PostLikesListAPIView(ListAPIView):
+class PostLikesListAPIView(LanguageMixin, ListAPIView):
     serializer_class = LikeModelSerializer
     permission_classes = [IsAuthenticated, IsActiveUser]
 
@@ -291,7 +292,7 @@ class PostLikesListAPIView(ListAPIView):
 
 ###################################### COMMENT ######################################
 @extend_schema(tags=['comment'])
-class CommentCreateAPIView(CreateAPIView):
+class CommentCreateAPIView(LanguageMixin, CreateAPIView):
     serializer_class = CommentModelSerializer
     permission_classes = [IsActiveUser]
 
@@ -318,7 +319,7 @@ class CommentCreateAPIView(CreateAPIView):
 
 
 @extend_schema(tags=['comment'])
-class CommentDeleteAPIView(DestroyAPIView):
+class CommentDeleteAPIView(LanguageMixin, DestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentModelSerializer
     lookup_field = 'pk'
@@ -346,7 +347,7 @@ class CommentDeleteAPIView(DestroyAPIView):
 
 
 @extend_schema(tags=['comment'])
-class PostCommentsListAPIView(ListAPIView):
+class PostCommentsListAPIView(LanguageMixin, ListAPIView):
     serializer_class = CommentModelSerializer
     permission_classes = [IsAuthenticated, IsActiveUser]
 

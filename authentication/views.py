@@ -6,7 +6,7 @@ from http import HTTPStatus
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.filters import SearchFilter
@@ -28,6 +28,7 @@ from authentication.serializers import UserModelSerializer, VerifyCodeSerializer
     UserLanguageSerializer
 from authentication.tasks import send_code_email
 from core.functions import api_response
+from core.mixins import LanguageMixin
 from core.utils import RequestLoggingMiddleware
 from root.settings import redis
 
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 ####################################### AUTH ########################################
 @extend_schema(tags=['auth'])
-class UserGenericAPIView(GenericAPIView):
+class UserGenericAPIView(LanguageMixin, GenericAPIView):
     serializer_class = UserModelSerializer
     permission_classes = [AllowAny]
     parser_classes = [MultiPartParser, FormParser]
@@ -67,7 +68,7 @@ class UserGenericAPIView(GenericAPIView):
 
 
 @extend_schema(tags=['auth'])
-class VerifyEmailGenericAPIView(GenericAPIView):
+class VerifyEmailGenericAPIView(LanguageMixin, GenericAPIView):
     serializer_class = VerifyCodeSerializer
     permission_classes = [AllowAny]
 
@@ -113,7 +114,7 @@ class VerifyEmailGenericAPIView(GenericAPIView):
 
 
 @extend_schema(tags=['auth'])
-class CustomTokenObtainPairView(TokenObtainPairView):
+class CustomTokenObtainPairView(LanguageMixin, TokenObtainPairView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -154,13 +155,13 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 @extend_schema(tags=['auth'])
-class CustomTokenRefreshView(TokenRefreshView):
+class CustomTokenRefreshView(LanguageMixin, TokenRefreshView):
     pass
 
 
 #################################### USER ###################################
 @extend_schema(tags=['user'])
-class UserUpdateAPIView(UpdateAPIView):
+class UserUpdateAPIView(LanguageMixin, UpdateAPIView):
     serializer_class = UserUpdateModelSerializer
     queryset = User.objects.all()
     permission_classes = [IsActiveUser]
@@ -193,7 +194,7 @@ class UserUpdateAPIView(UpdateAPIView):
 
 
 @extend_schema(tags=['user'])
-class UserDeleteAPIView(DestroyAPIView):
+class UserDeleteAPIView(LanguageMixin, DestroyAPIView):
     permission_classes = [IsActiveUser]
 
     def destroy(self, request, *args, **kwargs):
@@ -217,7 +218,7 @@ class UserDeleteAPIView(DestroyAPIView):
 
 
 @extend_schema(tags=['profile'])
-class UserDetailAPIView(RetrieveAPIView):
+class UserDetailAPIView(LanguageMixin, RetrieveAPIView):
     queryset = User.objects.all()
     lookup_field = 'pk'
     serializer_class = UserProfileSerializer
@@ -241,7 +242,7 @@ class UserDetailAPIView(RetrieveAPIView):
 
 
 @extend_schema(tags=['user'])
-class UserListAPIView(ListAPIView):
+class UserListAPIView(LanguageMixin, ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileSecondSerializer
     filter_backends = [SearchFilter]
@@ -270,7 +271,7 @@ class UserListAPIView(ListAPIView):
 
 
 @extend_schema(tags=['user'])
-class UserProfileByUsernameAPIView(RetrieveAPIView):
+class UserProfileByUsernameAPIView(LanguageMixin, RetrieveAPIView):
     queryset = User.objects.all()
     lookup_field = 'username'
     serializer_class = PublicUserSerializer
@@ -295,7 +296,7 @@ class UserProfileByUsernameAPIView(RetrieveAPIView):
 
 
 @extend_schema(tags=['user'])
-class SuggestedUsersAPIView(ListAPIView):
+class SuggestedUsersAPIView(LanguageMixin, ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileSecondSerializer
     permission_classes = [IsAuthenticated, IsActiveUser]
@@ -322,7 +323,7 @@ class SuggestedUsersAPIView(ListAPIView):
 
 
 @extend_schema(tags=['user'])
-class UserPostsAPIView(ListAPIView):
+class UserPostsAPIView(LanguageMixin, ListAPIView):
     serializer_class = PostModelSerializer
     permission_classes = [IsAuthenticated, IsActiveUser]
 
@@ -347,7 +348,7 @@ class UserPostsAPIView(ListAPIView):
 
 ##################################### FOLLOW ########################################
 @extend_schema(tags=['follow/unfollow'])
-class FollowUserAPIView(APIView):
+class FollowUserAPIView(LanguageMixin, APIView):
     permission_classes = [IsActiveUser]
 
     def post(self, request, username):
@@ -416,7 +417,7 @@ class FollowUserAPIView(APIView):
 
 
 @extend_schema(tags=['follow/unfollow'])
-class UnfollowUserAPIView(APIView):
+class UnfollowUserAPIView(LanguageMixin, APIView):
     permission_classes = [IsActiveUser]
 
     def post(self, request, username):
@@ -470,7 +471,7 @@ class UnfollowUserAPIView(APIView):
 
 
 @extend_schema(tags=['profile'])
-class UserFollowersAPIView(APIView):
+class UserFollowersAPIView(LanguageMixin, APIView):
     permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get(self, request, username):
@@ -486,7 +487,7 @@ class UserFollowersAPIView(APIView):
 
 
 @extend_schema(tags=['profile'])
-class UserFollowingAPIView(APIView):
+class UserFollowingAPIView(LanguageMixin, APIView):
     permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get(self, request, username):
@@ -503,7 +504,7 @@ class UserFollowingAPIView(APIView):
 
 ##################################### SETTINGS ########################################
 @extend_schema(tags=['settings, language'])
-class UpdateLanguageAPIView(UpdateAPIView):
+class UpdateLanguageAPIView(LanguageMixin, UpdateAPIView):
     serializer_class = UserLanguageSerializer
     permission_classes = [IsActiveUser]
 
