@@ -16,104 +16,104 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: app/models.py:14 app/models.py:64 app/models.py:79 app/models.py:110
 msgid "User"
-msgstr ""
+msgstr "Foydalanuvchi"
 
 #: app/models.py:16
 msgid "Image"
-msgstr ""
+msgstr "Rasm"
 
 #: app/models.py:17
 msgid "Caption"
-msgstr ""
+msgstr "Sharh"
 
 #: app/models.py:18 app/models.py:82 app/models.py:112
 #: authentication/models.py:67
 msgid "Created at"
-msgstr ""
+msgstr "Yaratilgan vaqti"
 
 #: app/models.py:19
 msgid "Updated at"
-msgstr ""
+msgstr "Yangilangan vaqti"
 
 #: app/models.py:20
 msgid "Is edited"
-msgstr ""
+msgstr "Tahrirlangan"
 
 #: app/models.py:24 app/models.py:58 app/models.py:73 app/models.py:104
 msgid "Post"
-msgstr ""
+msgstr "Post"
 
 #: app/models.py:25
 msgid "Posts"
-msgstr ""
+msgstr "Postlar"
 
 #: app/models.py:51
 msgid "Post View"
-msgstr ""
+msgstr "Post ko‘rilishi"
 
 #: app/models.py:52
 msgid "Post Views"
-msgstr ""
+msgstr "Post ko‘rilishlar"
 
 #: app/models.py:81
 msgid "Comment text"
-msgstr ""
+msgstr "Izoh"
 
 #: app/models.py:86
 msgid "Comment"
-msgstr ""
+msgstr "Izoh"
 
 #: app/models.py:87
 msgid "Comments"
-msgstr ""
+msgstr "Izohlar"
 
 #: app/models.py:97
 msgid "Like"
-msgstr ""
+msgstr "Layk"
 
 #: app/models.py:98
 msgid "Likes"
-msgstr ""
+msgstr "Layklar"
 
 #: app/serializers.py:20
 msgid "Comment cannot be empty"
-msgstr ""
+msgstr "Izoh bo'sh bo'lishi mumkin emas"
 
 #: app/serializers.py:22
 msgid "Comment is too long (maximum 500 characters)"
-msgstr ""
+msgstr "Izoh juda uzun (maksimal 500 belgi)"
 
 #: app/serializers.py:75
 msgid "Image is required"
-msgstr ""
+msgstr "Rasm kiritilishi kerak"
 
 #: app/serializers.py:78
 msgid "Image size cannot be exceed 10MB"
-msgstr ""
+msgstr "Rasm hajmi 10MB dan katta bo‘lishi mumkin emas"
 
 #: app/serializers.py:82
 msgid "Only JPEG, PNG, GIF and WebP images are allowed"
-msgstr ""
+msgstr "Faqat JPEG, PNG, GIF va WebP formatidagi rasmlar ruxsat etiladi"
 
 #: app/serializers.py:88
 msgid "Caption is too long (maximum 2200 characters)"
-msgstr ""
+msgstr "Sarlavha juda uzun (maksimal 2200 belgi)"
 
 #: app/views.py:43
 msgid "Post created successfully"
-msgstr ""
+msgstr "Post muvaffaqiyatli yaratildi"
 
 #: app/views.py:61
 msgid "Posts retrieved successfully"
-msgstr ""
+msgstr "Postlar muvaffaqiyatli yuklandi"
 
 #: app/views.py:81
 msgid "Post deleted successfully"
-msgstr ""
+msgstr "Post muvaffaqiyatli o'chirildi"
 
 #: app/views.py:89
 msgid "Post not found or you don't have permission"
@@ -121,51 +121,51 @@ msgstr ""
 
 #: app/views.py:109
 msgid "Post updated successfully"
-msgstr ""
+msgstr "Post muvaffaqiyatli tahrirlandi"
 
 #: app/views.py:134
 msgid "Post retrieved successfully"
-msgstr ""
+msgstr "Post muvaffaqiyatli yuklandi"
 
 #: app/views.py:157
 msgid "Feed retrieved successfully"
-msgstr ""
+msgstr "Postlar muvaffaqiyatli yuklandi"
 
 #: app/views.py:183
 msgid "Top posts retrieved successfully"
-msgstr ""
+msgstr "Top postlar muvaffaqiyatli yuklandi"
 
 #: app/views.py:204
 msgid "My posts retrieved successfully"
-msgstr ""
+msgstr "Mening yozuvlarim muvaffaqiyatli yuklandi"
 
 #: app/views.py:229
 msgid "You have already liked this post"
-msgstr ""
+msgstr "Siz bu postni allaqachon yoqtirgansiz"
 
 #: app/views.py:236
 msgid "Post liked successfully"
-msgstr ""
+msgstr "Post muvaffaqiyatli yoqtirildi"
 
 #: app/views.py:257
 msgid "Post unliked successfully"
-msgstr ""
+msgstr "Post yoqishi bekor qilindi"
 
 #: app/views.py:265
 msgid "You have not liked this post"
-msgstr ""
+msgstr "Siz bu postni hali yoqtirmagansiz"
 
 #: app/views.py:287
 msgid "Post likes retrieved successfully"
-msgstr ""
+msgstr "Post yoqtirmalar muvaffaqiyatli yuklandi"
 
 #: app/views.py:314
 msgid "Comment created successfully"
-msgstr ""
+msgstr "Izoh muvaffaqiyatli yaratildi"
 
 #: app/views.py:335
 msgid "Comment deleted successfully"
-msgstr ""
+msgstr "Izoh muvaffaqiyatli o'chirildi"
 
 #: app/views.py:343
 msgid "Comment not found or you don't have permission"
@@ -173,152 +173,156 @@ msgstr ""
 
 #: app/views.py:364
 msgid "Comments retrieved successfully"
-msgstr ""
+msgstr "Izohlar muvaffaqiyatli yuklandi"
 
 #: authentication/models.py:54
 msgid "Follow"
-msgstr ""
+msgstr "Obuna bo'lish"
 
 #: authentication/models.py:55
 msgid "Follows"
-msgstr ""
+msgstr "Obuna bo'lish"
 
 #: authentication/models.py:61
 msgid "Follower"
-msgstr ""
+msgstr "Kuzatuvchilar"
 
 #: authentication/models.py:66
 msgid "Following"
-msgstr ""
+msgstr "Kuzatyapti"
 
 #: authentication/permissions.py:18
 msgid "Your account is deactivated."
-msgstr ""
+msgstr "Sizning profilingiz deaktivatsiya qilingan."
 
 #: authentication/serializers.py:28
 msgid "Email must be valid!"
-msgstr ""
+msgstr "Email manzili yaroqli bo‘lishi shart!"
 
 #: authentication/serializers.py:32
 msgid "Email already registered!"
-msgstr ""
+msgstr "Email manzil allaqachon ro‘yxatdan o'tgan!"
 
 #: authentication/serializers.py:38 authentication/serializers.py:133
 msgid "Username should contain only letters, numbers and underscores."
 msgstr ""
+"Foydalanuvchi nomi faqat harflar, raqamlar va pastki chiziqdan iborat "
+"bo‘lishi shart."
 
 #: authentication/serializers.py:48 authentication/serializers.py:143
 msgid "Username must be at least 3 characters long."
-msgstr ""
+msgstr "Foydalanuvchi nomi kamida 3 ta belgidan iborat bo‘lishi kerak."
 
 #: authentication/serializers.py:51 authentication/serializers.py:147
 msgid "This username is not valid!"
-msgstr ""
+msgstr "Bu foydalanuvchi nomi yaroqsiz!"
 
 #: authentication/serializers.py:54 authentication/serializers.py:156
 msgid "This username is already taken!"
-msgstr ""
+msgstr "Bu foydalanuvchi nomi allaqachon band!"
 
 #: authentication/serializers.py:65
 msgid ""
 "Password must be 8–64 characters long and include at least one uppercase "
 "letter, one lowercase letter, one number, and one special character."
 msgstr ""
+"Parol 8–64 ta belgidan iborat bo‘lishi va kamida bitta katta harf, bitta "
+"kichik harf, bitta raqam hamda bitta maxsus belgini o‘z ichiga olishi kerak."
 
 #: authentication/serializers.py:105
 msgid "Code must be 6 digits."
-msgstr ""
+msgstr "Kod 6 raqamdan iborat bo‘lishi kerak."
 
 #: authentication/serializers.py:114
 msgid "Invalid or expired code!"
-msgstr ""
+msgstr "Kod yaroqsiz yoki amal qilish muddati tugagan!"
 
 #: authentication/views.py:63
 msgid "Verification code sent successfully"
-msgstr ""
+msgstr "Tasdiqlash kodi muvaffaqiyatli yuborildi"
 
 #: authentication/views.py:91
 msgid "Verification code is invalid or expired."
-msgstr ""
+msgstr "Tasdiqlash kodi yaroqsiz yoki amal qilish muddati tugagan."
 
 #: authentication/views.py:109
 msgid "Email verified successfully"
-msgstr ""
+msgstr "Elektron pochta manzili muvaffaqiyatli tasdiqlandi"
 
 #: authentication/views.py:151
 msgid "Login successful"
-msgstr ""
+msgstr "Tizimga muvaffaqiyatli kirildi"
 
 #: authentication/views.py:190
 msgid "User updated successfully"
-msgstr ""
+msgstr "Foydalanuvchi muvaffaqiyatli yangilandi"
 
 #: authentication/views.py:215
 msgid "User deleted successfully"
-msgstr ""
+msgstr "Foydalanuvchi muvaffaqiyatli o'chirildi"
 
 #: authentication/views.py:238 authentication/views.py:292
 msgid "User profile retrieved successfully"
-msgstr ""
+msgstr "Foydalanuvchi muvaffaqiyatli yuklandi"
 
 #: authentication/views.py:267
 msgid "Users retrieved successfully"
-msgstr ""
+msgstr "Foydalanuvchilar muvaffaqiyatli yuklandi"
 
 #: authentication/views.py:319
 msgid "Suggested users retrieved successfully"
-msgstr ""
+msgstr "Tavsiya qilingan foydalanuvchilar muvaffaqiyatli yuklandi"
 
 #: authentication/views.py:343
 msgid "User posts retrieved successfully"
-msgstr ""
+msgstr "Foydalanuvchining postlari muvaffaqiyatli yuklandi"
 
 #: authentication/views.py:368 authentication/views.py:437
 msgid "User not found"
-msgstr ""
+msgstr "Foydalanuvchi topilmadi"
 
 #: authentication/views.py:381
 msgid "You can not follow yourself"
-msgstr ""
+msgstr "Siz o‘zingizni kuzata olmaysiz"
 
 #: authentication/views.py:400
 msgid "Follow already created"
-msgstr ""
+msgstr "Siz bu foydalanuvchini allaqachon kuzatyapsiz"
 
 #: authentication/views.py:411
 #, python-format
 msgid "You are now following %(username)s"
-msgstr ""
+msgstr "Siz %(username)s ni kuzatishni boshladingiz"
 
 #: authentication/views.py:452
 #, python-format
 msgid "You have unfollowed %(username)s"
-msgstr ""
+msgstr "Siz %(username)s ni kuzatishni to‘xtatdingiz"
 
 #: authentication/views.py:467
 msgid "You are not following this user"
-msgstr ""
+msgstr "Siz bu foydalanuvchini kuzatmaysiz"
 
 #: authentication/views.py:483
 msgid "Followers retrieved successfully"
-msgstr ""
+msgstr "Kuzatuvchilar muvaffaqiyatli yuklandi"
 
 #: authentication/views.py:499
 msgid "Following list retrieved successfully"
-msgstr ""
+msgstr "Siz kuzatayotganlar ro‘yxati muvaffaqiyatli yuklandi"
 
 #: authentication/views.py:533
 msgid "Language updated successfully"
-msgstr ""
+msgstr "Til sozlamalari muvaffaqiyatli yangilandi"
 
 #: root/settings.py:87
 msgid "English"
-msgstr ""
+msgstr "Inglizcha"
 
 #: root/settings.py:88
 msgid "Uzbek"
-msgstr ""
+msgstr "O'zbekcha"
 
 #: root/settings.py:89
 msgid "Russian"
-msgstr ""
+msgstr "Ruscha"

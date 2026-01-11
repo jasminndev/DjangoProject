@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-09 12:21+0500\n"
+"POT-Creation-Date: 2026-01-10 23:06+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,65 +19,65 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-#: app/models.py:10 app/models.py:55 app/models.py:70 app/models.py:101
 
+#: app/models.py:14 app/models.py:64 app/models.py:79 app/models.py:110
 msgid "User"
 msgstr "Пользователь"
 
-#: app/models.py:12
+#: app/models.py:16
 msgid "Image"
 msgstr "Изображение"
 
-#: app/models.py:13
+#: app/models.py:17
 msgid "Caption"
 msgstr "Подпись"
 
-#: app/models.py:14 app/models.py:73 app/models.py:103
-#: authentication/models.py:65
+#: app/models.py:18 app/models.py:82 app/models.py:112
+#: authentication/models.py:67
 msgid "Created at"
 msgstr "Создано"
 
-#: app/models.py:15
+#: app/models.py:19
 msgid "Updated at"
 msgstr "Обновлено"
 
-#: app/models.py:16
+#: app/models.py:20
 msgid "Is edited"
 msgstr "Редактировалось"
 
-#: app/models.py:20 app/models.py:49 app/models.py:64 app/models.py:95
+#: app/models.py:24 app/models.py:58 app/models.py:73 app/models.py:104
 msgid "Post"
 msgstr "Пост"
 
-#: app/models.py:21
+#: app/models.py:25
 msgid "Posts"
 msgstr "Посты"
 
-#: app/models.py:42
+#: app/models.py:51
 msgid "Post View"
 msgstr "Просмотр поста"
 
-#: app/models.py:43
+#: app/models.py:52
 msgid "Post Views"
 msgstr "Просмотры поста"
 
-#: app/models.py:72
+#: app/models.py:81
 msgid "Comment text"
 msgstr "Текст комментария"
 
-#: app/models.py:77
+#: app/models.py:86
 msgid "Comment"
 msgstr "Комментарий"
 
-#: app/models.py:78
+#: app/models.py:87
 msgid "Comments"
 msgstr "Комментарии"
 
-#: app/models.py:88
+#: app/models.py:97
 msgid "Like"
 msgstr "Нравится"
 
-#: app/models.py:89
+#: app/models.py:98
 msgid "Likes"
 msgstr "Лайки"
 
@@ -89,99 +89,107 @@ msgstr "Комментарий не может быть пустым"
 msgid "Comment is too long (maximum 500 characters)"
 msgstr "Комментарий слишком длинный (максимум 500 символов)"
 
-#: app/serializers.py:69
+#: app/serializers.py:75
 msgid "Image is required"
 msgstr "Изображение обязательно"
 
-#: app/serializers.py:72
+#: app/serializers.py:78
 msgid "Image size cannot be exceed 10MB"
 msgstr "Размер изображения не может превышать 10 МБ"
 
-#: app/serializers.py:76
+#: app/serializers.py:82
 msgid "Only JPEG, PNG, GIF and WebP images are allowed"
 msgstr "Разрешены только изображения в формате JPEG, PNG, GIF и WebP"
 
-#: app/serializers.py:82
+#: app/serializers.py:88
 msgid "Caption is too long (maximum 2200 characters)"
 msgstr "Подпись слишком длинная (максимум 2200 символов)"
 
-#: app/views.py:35
+#: app/views.py:43
 msgid "Post created successfully"
 msgstr "Пост успешно создан"
 
-#: app/views.py:51
+#: app/views.py:61
 msgid "Posts retrieved successfully"
 msgstr "Посты успешно получены"
 
-#: app/views.py:67
+#: app/views.py:81
 msgid "Post deleted successfully"
 msgstr "Пост успешно удалён"
 
-#: app/views.py:83
+#: app/views.py:89
+msgid "Post not found or you don't have permission"
+msgstr ""
+
+#: app/views.py:109
 msgid "Post updated successfully"
 msgstr "Пост успешно обновлён"
 
-#: app/views.py:106
+#: app/views.py:134
 msgid "Post retrieved successfully"
 msgstr "Пост успешно получен"
 
-#: app/views.py:131
+#: app/views.py:157
 msgid "Feed retrieved successfully"
 msgstr "Лента успешно получена"
 
-#: app/views.py:157
+#: app/views.py:183
 msgid "Top posts retrieved successfully"
 msgstr "Топ-посты успешно получены"
 
-#: app/views.py:177
+#: app/views.py:204
 msgid "My posts retrieved successfully"
 msgstr "Мои посты успешно получены"
 
-#: app/views.py:198
+#: app/views.py:229
 msgid "You have already liked this post"
 msgstr "Вы уже лайкнули этот пост"
 
-#: app/views.py:204
+#: app/views.py:236
 msgid "Post liked successfully"
 msgstr "Пост успешно лайкнут"
 
-#: app/views.py:222
+#: app/views.py:257
 msgid "Post unliked successfully"
 msgstr "Лайк с поста успешно снят"
 
-#: app/views.py:228
+#: app/views.py:265
 msgid "You have not liked this post"
 msgstr "Вы ещё не лайкнули этот пост"
 
-#: app/views.py:247
+#: app/views.py:287
 msgid "Post likes retrieved successfully"
 msgstr "Лайки поста успешно получены"
 
-#: app/views.py:269
+#: app/views.py:314
 msgid "Comment created successfully"
 msgstr "Комментарий успешно создан"
 
-#: app/views.py:286
+#: app/views.py:335
 msgid "Comment deleted successfully"
 msgstr "Комментарий успешно удалён"
 
-#: app/views.py:304
+#: app/views.py:343
+msgid "Comment not found or you don't have permission"
+msgstr ""
+
+#: app/views.py:364
 msgid "Comments retrieved successfully"
 msgstr "Комментарии успешно получены"
 
-#: authentication/models.py:52
+#: authentication/models.py:54
 msgid "Follow"
 msgstr "Подписка"
 
-#: authentication/models.py:53
+#: authentication/models.py:55
 msgid "Follows"
 msgstr "Подписки"
 
-#: authentication/models.py:59
+#: authentication/models.py:61
 msgid "Follower"
 msgstr "Подписчик"
 
-#: authentication/models.py:64
+#: authentication/models.py:66
 msgid "Following"
 msgstr "Подписки на пользователей"
 
@@ -189,116 +197,134 @@ msgstr "Подписки на пользователей"
 msgid "Your account is deactivated."
 msgstr "Ваш аккаунт деактивирован."
 
-#: authentication/serializers.py:25
+#: authentication/serializers.py:28
 msgid "Email must be valid!"
 msgstr "Email должен быть корректным!"
 
-#: authentication/serializers.py:28
+#: authentication/serializers.py:32
 msgid "Email already registered!"
 msgstr "Этот email уже зарегистрирован!"
 
-#: authentication/serializers.py:34 authentication/serializers.py:117
+#: authentication/serializers.py:38 authentication/serializers.py:133
 msgid "Username should contain only letters, numbers and underscores."
-msgstr "Имя пользователя должно содержать только буквы, цифры и символы подчёркивания."
+msgstr ""
+"Имя пользователя должно содержать только буквы, цифры и символы "
+"подчёркивания."
 
-#: authentication/serializers.py:43 authentication/serializers.py:126
+#: authentication/serializers.py:48 authentication/serializers.py:143
 msgid "Username must be at least 3 characters long."
 msgstr "Имя пользователя должно содержать не менее 3 символов."
 
-#: authentication/serializers.py:45 authentication/serializers.py:128
+#: authentication/serializers.py:51 authentication/serializers.py:147
 msgid "This username is not valid!"
 msgstr "Это имя пользователя недействительно!"
 
-#: authentication/serializers.py:47 authentication/serializers.py:132
+#: authentication/serializers.py:54 authentication/serializers.py:156
 msgid "This username is already taken!"
 msgstr "Это имя пользователя уже занято!"
 
-#: authentication/serializers.py:57
-msgid "Password must be 8–64 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
-msgstr "Пароль должен содержать от 8 до 64 символов и включать как минимум одну заглавную букву, одну строчную букву, одну цифру и один специальный символ."
+#: authentication/serializers.py:65
+msgid ""
+"Password must be 8–64 characters long and include at least one uppercase "
+"letter, one lowercase letter, one number, and one special character."
+msgstr ""
+"Пароль должен содержать от 8 до 64 символов и включать как минимум одну "
+"заглавную букву, одну строчную букву, одну цифру и один специальный символ."
 
-#: authentication/serializers.py:97
+#: authentication/serializers.py:105
 msgid "Code must be 6 digits."
 msgstr "Код должен состоять из 6 цифр."
 
-#: authentication/serializers.py:104
+#: authentication/serializers.py:114
 msgid "Invalid or expired code!"
 msgstr "Неверный или просроченный код!"
 
-#: authentication/views.py:48
+#: authentication/views.py:63
 msgid "Verification code sent successfully"
 msgstr "Код подтверждения успешно отправлен"
 
-#: authentication/views.py:69
+#: authentication/views.py:91
 msgid "Verification code is invalid or expired."
 msgstr "Код подтверждения недействителен или просрочен."
 
-#: authentication/views.py:81
+#: authentication/views.py:109
 msgid "Email verified successfully"
 msgstr "Email успешно подтверждён"
 
-#: authentication/views.py:115
+#: authentication/views.py:151
 msgid "Login successful"
 msgstr "Вход выполнен успешно"
 
-#: authentication/views.py:146
+#: authentication/views.py:190
 msgid "User updated successfully"
 msgstr "Пользователь успешно обновлён"
 
-#: authentication/views.py:163
+#: authentication/views.py:215
 msgid "User deleted successfully"
 msgstr "Пользователь успешно удалён"
 
-#: authentication/views.py:181 authentication/views.py:223
+#: authentication/views.py:238 authentication/views.py:292
 msgid "User profile retrieved successfully"
 msgstr "Профиль пользователя успешно получен"
 
-#: authentication/views.py:204
+#: authentication/views.py:267
 msgid "Users retrieved successfully"
 msgstr "Пользователи успешно получены"
 
-#: authentication/views.py:245
+#: authentication/views.py:319
 msgid "Suggested users retrieved successfully"
 msgstr "Рекомендованные пользователи успешно получены"
 
-#: authentication/views.py:263
+#: authentication/views.py:343
 msgid "User posts retrieved successfully"
 msgstr "Посты пользователя успешно получены"
 
-#: authentication/views.py:280 authentication/views.py:321
+#: authentication/views.py:368 authentication/views.py:437
 msgid "User not found"
 msgstr "Пользователь не найден"
 
-#: authentication/views.py:287
+#: authentication/views.py:381
 msgid "You can not follow yourself"
 msgstr "Вы не можете подписываться на себя"
 
-#: authentication/views.py:299
+#: authentication/views.py:400
 msgid "Follow already created"
 msgstr "Вы уже подписаны на этого пользователя"
 
-#: authentication/views.py:304
+#: authentication/views.py:411
 #, python-format
 msgid "You are now following %(username)s"
 msgstr "Вы теперь подписаны на %(username)s"
 
-#: authentication/views.py:330
+#: authentication/views.py:452
 #, python-format
 msgid "You have unfollowed %(username)s"
 msgstr "Вы отписались от %(username)s"
 
-#: authentication/views.py:338
+#: authentication/views.py:467
 msgid "You are not following this user"
 msgstr "Вы не подписаны на этого пользователя"
 
-#: authentication/views.py:354
+#: authentication/views.py:483
 msgid "Followers retrieved successfully"
 msgstr "Подписчики успешно получены"
 
-#: authentication/views.py:370
+#: authentication/views.py:499
 msgid "Following list retrieved successfully"
 msgstr "Список подписок успешно получен"
 
-#: authentication/views.py:395
+#: authentication/views.py:533
 msgid "Language updated successfully"
 msgstr "Язык успешно обновлён"
+
+#: root/settings.py:87
+msgid "English"
+msgstr "Английский"
+
+#: root/settings.py:88
+msgid "Uzbek"
+msgstr "Узбекский"
+
+#: root/settings.py:89
+msgid "Russian"
+msgstr "Русский"

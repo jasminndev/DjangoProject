@@ -1,4 +1,4 @@
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
@@ -59,10 +59,16 @@ class PostModelSerializer(ModelSerializer):
 
 
 class PostCreateModelSerializer(ModelSerializer):
+    user = UserProfileSecondSerializer(read_only=True)
+    image_url = SerializerMethodField()
+
     class Meta:
         model = Post
-        fields = ('id', 'caption', 'user', 'created_at', 'updated_at', 'is_edited')
+        fields = ('id', 'caption', 'user', 'created_at', 'updated_at', 'is_edited', 'image', 'image_url')
         read_only_fields = ('id', 'created_at', 'updated_at', 'is_edited')
+        extra_kwargs = {
+            'image': {'write_only': True},
+        }
 
     def validate_image(self, value):
         if not value:
@@ -81,6 +87,11 @@ class PostCreateModelSerializer(ModelSerializer):
         if value and len(value) > 2200:
             raise ValidationError(_('Caption is too long (maximum 2200 characters)'))
         return value
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
 
 
 class PostViewModelSerializer(ModelSerializer):

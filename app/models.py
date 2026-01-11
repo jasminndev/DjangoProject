@@ -1,5 +1,9 @@
 from django.db.models import Model, ForeignKey, CASCADE, TextField, DateTimeField, ImageField, BooleanField
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
+
+from core.storage import SupabaseStorage
+
+supabase_storage = SupabaseStorage()
 
 
 class Post(Model):
@@ -9,7 +13,7 @@ class Post(Model):
         related_name='posts',
         verbose_name=_('User')
     )
-    image = ImageField(upload_to='posts//%Y/%m/%d/', verbose_name=_('Image'))
+    image = ImageField(upload_to='posts//%Y/%m/%d/', storage=supabase_storage, verbose_name=_('Image'))
     caption = TextField(max_length=2200, blank=True, verbose_name=_('Caption'))
     created_at = DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
     updated_at = DateTimeField(auto_now=True, verbose_name=_('Updated at'))
@@ -19,6 +23,11 @@ class Post(Model):
         ordering = ('-created_at',)
         verbose_name = _('Post')
         verbose_name_plural = _('Posts')
+
+    def delete(self, *args, **kwargs):
+        if self.image:
+            self.image.delete(save=False)
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"Post by {self.user.username} ({self.created_at})"

@@ -1,8 +1,12 @@
 from ckeditor.fields import RichTextField
 from django.contrib.auth.models import AbstractUser, UserManager
-from django.db.models import ImageField, Model, ForeignKey, CASCADE
-from django.db.models.fields import EmailField, DateTimeField, CharField, BooleanField
-from django.utils.translation import gettext as _
+from django.db.models import Model, ForeignKey, CASCADE, ImageField
+from django.db.models.fields import EmailField, DateTimeField, CharField, BooleanField, URLField
+from django.utils.translation import gettext_lazy as _
+
+from core.storage import SupabaseStorage
+
+supabase_storage = SupabaseStorage()
 
 
 class User(AbstractUser):
@@ -12,7 +16,7 @@ class User(AbstractUser):
         default='en'
     )
     email = EmailField(unique=True)
-    avatar = ImageField(upload_to='avatars/%Y/%m/%d/', null=True, blank=True)
+    avatar = ImageField(upload_to='avatars/%Y/%m/%d/', storage=supabase_storage, null=True, blank=True)
     bio = RichTextField(null=True, blank=True)
     updated_at = DateTimeField(auto_now=True)
     is_deleted = BooleanField(default=False)

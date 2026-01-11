@@ -42,6 +42,13 @@ class SecretConfig:
     SECRET_KEY = os.getenv("SECRET_KEY")
 
 
+@dataclass()
+class SupabaseConfig:
+    SUPABASE_URL = os.getenv("SUPABASE_URL")
+    SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+    SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET")
+
+
 @dataclass
 class Payment:
     PAYMENT_PROVIDER_TOKEN = os.getenv("PAYMENT_PROVIDER_TOKEN")
@@ -53,6 +60,7 @@ class Configuration:
     redis = RedisConfig()
     bot = BotConfig()
     email = EmailConfig()
+    supabase = SupabaseConfig()
 
 
 conf = Configuration()

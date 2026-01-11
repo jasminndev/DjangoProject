@@ -1,22 +1,25 @@
 import json
+import logging
 import random
 from http import HTTPStatus
 
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import GenericAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView, ListAPIView, \
     get_object_or_404
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from app.models import Post
 from app.serializers import PostModelSerializer
+from authentication.error_codes import ErrorCode
 from authentication.models import Follow
 from authentication.models import User
 from authentication.permissions import IsActiveUser
@@ -25,7 +28,10 @@ from authentication.serializers import UserModelSerializer, VerifyCodeSerializer
     UserLanguageSerializer
 from authentication.tasks import send_code_email
 from core.functions import api_response
+from core.utils import RequestLoggingMiddleware
 from root.settings import redis
+
+logger = logging.getLogger(__name__)
 
 
 ####################################### AUTH ########################################
@@ -33,8 +39,17 @@ from root.settings import redis
 class UserGenericAPIView(GenericAPIView):
     serializer_class = UserModelSerializer
     permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
+        ip = RequestLoggingMiddleware.get_client_ip(request)
+
+        logger.info(
+            "Registration attempt | ip=%s | email=%s",
+            ip,
+            request.data.get("email")
+        )
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -57,6 +72,7 @@ class VerifyEmailGenericAPIView(GenericAPIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        ip = RequestLoggingMiddleware.get_client_ip(request)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         code = serializer.validated_data.get("code")
@@ -64,8 +80,14 @@ class VerifyEmailGenericAPIView(GenericAPIView):
         raw_data = redis.get(redis_key)
 
         if not raw_data:
+            logger.warning(
+                "Email verification failed | ip=%s | code=%s",
+                ip,
+                code
+            )
             return api_response(
                 success=False,
+                error_code=ErrorCode.VERIFICATION_CODE_EXPIRED,
                 message=_("Verification code is invalid or expired."),
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -75,6 +97,12 @@ class VerifyEmailGenericAPIView(GenericAPIView):
         with transaction.atomic():
             user = User.objects.create(**user_data)
             redis.delete(redis_key)
+
+        logger.info(
+            "Email verified successfully | user_id=%s | ip=%s",
+            user.id,
+            ip
+        )
 
         return api_response(
             success=True,
@@ -89,6 +117,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+        ip = RequestLoggingMiddleware.get_client_ip(request)
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -100,6 +130,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
         user.last_login = timezone.now()
         user.save(update_fields=['is_deleted', 'deleted_at', 'last_login'])
+
+        logger.info(
+            "Login successful | user_id=%s | ip=%s",
+            user.id,
+            ip
+        )
 
         response_data = {
             'user': {
@@ -133,6 +169,8 @@ class UserUpdateAPIView(UpdateAPIView):
         return self.request.user
 
     def update(self, request, *args, **kwargs):
+        ip = RequestLoggingMiddleware.get_client_ip(request)
+
         serializer = self.get_serializer(
             self.get_object(),
             data=request.data,
@@ -140,6 +178,12 @@ class UserUpdateAPIView(UpdateAPIView):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        logger.info(
+            "User profile updated | user_id=%s | ip=%s",
+            request.user.id,
+            ip
+        )
 
         return api_response(
             success=True,
@@ -153,10 +197,18 @@ class UserDeleteAPIView(DestroyAPIView):
     permission_classes = [IsActiveUser]
 
     def destroy(self, request, *args, **kwargs):
+        ip = RequestLoggingMiddleware.get_client_ip(request)
+
         user = request.user
         user.is_deleted = True
         user.deleted_at = timezone.now()
         user.save(update_fields=['is_deleted', 'deleted_at'])
+
+        logger.warning(
+            "User account deleted | user_id=%s | ip=%s",
+            user.id,
+            ip
+        )
 
         return api_response(
             success=True,
@@ -175,6 +227,11 @@ class UserDetailAPIView(RetrieveAPIView):
         return self.request.user
 
     def retrieve(self, request, *args, **kwargs):
+        logger.debug(
+            "User profile viewed | user_id=%s",
+            request.user.id
+        )
+
         serializer = self.get_serializer(self.get_object())
         return api_response(
             success=True,
@@ -192,6 +249,12 @@ class UserListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated, IsActiveUser]
 
     def list(self, request, *args, **kwargs):
+        logger.debug(
+            "User list accessed | user_id=%s | query=%s",
+            request.user.id,
+            request.query_params.dict()
+        )
+
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -217,6 +280,12 @@ class UserProfileByUsernameAPIView(RetrieveAPIView):
         return get_object_or_404(User, username=self.kwargs['username'])
 
     def retrieve(self, request, *args, **kwargs):
+        logger.debug(
+            "Public profile viewed | viewer=%s | target=%s",
+            request.user.id,
+            self.kwargs['username']
+        )
+
         serializer = self.get_serializer(self.get_object())
         return api_response(
             success=True,
@@ -239,6 +308,11 @@ class SuggestedUsersAPIView(ListAPIView):
         ).order_by('-date_joined')[:10]
 
     def list(self, request, *args, **kwargs):
+        logger.debug(
+            "Suggested users requested | user_id=%s",
+            request.user.id
+        )
+
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return api_response(
             success=True,
@@ -257,6 +331,12 @@ class UserPostsAPIView(ListAPIView):
         return Post.objects.filter(user=user).order_by("-created_at")
 
     def list(self, request, *args, **kwargs):
+        logger.debug(
+            "User posts viewed | viewer=%s | target=%s",
+            request.user.id,
+            self.kwargs["username"]
+        )
+
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return api_response(
             success=True,
@@ -266,24 +346,38 @@ class UserPostsAPIView(ListAPIView):
 
 
 ##################################### FOLLOW ########################################
-
 @extend_schema(tags=['follow/unfollow'])
 class FollowUserAPIView(APIView):
     permission_classes = [IsActiveUser]
 
     def post(self, request, username):
+        ip = RequestLoggingMiddleware.get_client_ip(request)
+
         try:
             user_to_follow = User.objects.get(username=username)
         except User.DoesNotExist:
+            logger.warning(
+                "Follow failed: user not found | follower=%s | target=%s | ip=%s",
+                request.user.id,
+                username,
+                ip
+            )
             return api_response(
                 success=False,
+                error_code=ErrorCode.USER_NOT_FOUND,
                 message=_("User not found"),
                 status=status.HTTP_404_NOT_FOUND
             )
 
         if user_to_follow == request.user:
+            logger.warning(
+                "Follow failed: self-follow attempt | user_id=%s | ip=%s",
+                request.user.id,
+                ip
+            )
             return api_response(
                 success=False,
+                error_code=ErrorCode.SELF_FOLLOW,
                 message=_('You can not follow yourself'),
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -294,11 +388,24 @@ class FollowUserAPIView(APIView):
         )
 
         if not created:
+            logger.warning(
+                "Follow already exists | follower=%s | following=%s | ip=%s",
+                request.user.id,
+                user_to_follow.id,
+                ip
+            )
             return api_response(
                 success=False,
+                error_code=ErrorCode.ALREADY_FOLLOWED,
                 message=_('Follow already created'),
                 status=status.HTTP_400_BAD_REQUEST
             )
+        logger.info(
+            "User followed | follower=%s | following=%s | ip=%s",
+            request.user.id,
+            user_to_follow.id,
+            ip
+        )
         return api_response(
             success=True,
             message=_("You are now following %(username)s") % {
@@ -313,11 +420,20 @@ class UnfollowUserAPIView(APIView):
     permission_classes = [IsActiveUser]
 
     def post(self, request, username):
+        ip = RequestLoggingMiddleware.get_client_ip(request)
+
         try:
             user_to_unfollow = User.objects.get(username=username)
         except User.DoesNotExist:
+            logger.warning(
+                "Unfollow failed: user not found | follower=%s | target=%s | ip=%s",
+                request.user.id,
+                username,
+                ip
+            )
             return api_response(
                 success=False,
+                error_code=ErrorCode.USER_NOT_FOUND,
                 message=_("User not found"),
                 status=status.HTTP_404_NOT_FOUND
             )
@@ -325,6 +441,12 @@ class UnfollowUserAPIView(APIView):
         try:
             follow = Follow.objects.get(follower=request.user, following=user_to_unfollow)
             follow.delete()
+            logger.info(
+                "User unfollowed | follower=%s | following=%s | ip=%s",
+                request.user.id,
+                user_to_unfollow.id,
+                ip
+            )
             return api_response(
                 success=True,
                 message=_("You have unfollowed %(username)s") % {
@@ -333,8 +455,15 @@ class UnfollowUserAPIView(APIView):
                 data=None
             )
         except Follow.DoesNotExist:
+            logger.warning(
+                "Unfollow failed: relationship not found | follower=%s | target=%s | ip=%s",
+                request.user.id,
+                username,
+                ip
+            )
             return api_response(
                 success=False,
+                error_code=ErrorCode.NOT_FOLLOWING,
                 message=_("You are not following this user"),
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -382,6 +511,8 @@ class UpdateLanguageAPIView(UpdateAPIView):
         return self.request.user
 
     def update(self, request, *args, **kwargs):
+        ip = RequestLoggingMiddleware.get_client_ip(request)
+
         serializer = self.get_serializer(
             self.get_object(),
             data=request.data,
@@ -389,6 +520,13 @@ class UpdateLanguageAPIView(UpdateAPIView):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        logger.info(
+            "Language updated | user_id=%s | language=%s | ip=%s",
+            request.user.id,
+            request.data.get("language"),
+            ip
+        )
 
         return api_response(
             success=True,

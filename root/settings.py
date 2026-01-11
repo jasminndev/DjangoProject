@@ -1,7 +1,9 @@
+import os
 from datetime import timedelta
 from os.path import join
 from pathlib import Path
 
+from django.utils.translation import gettext_lazy as _
 from redis import Redis
 
 from core.config import RedisConfig, EmailConfig, SecretConfig
@@ -75,19 +77,19 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'en'
-
-LANGUAGES = [
-    ('en', 'English'),
-    ('uz', 'Uzbek'),
-    ('en', 'Russian'),
-]
-
-TIME_ZONE = 'Asia/Tashkent'
-
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
+LANGUAGE_CODE = 'en'
+
+LANGUAGES = [
+    ('en', _('English')),
+    ('uz', _('Uzbek')),
+    ('en', _('Russian')),
+]
+
+TIME_ZONE = 'Asia/Tashkent'
 
 LOCALE_PATHS = [
     BASE_DIR / 'locale',
@@ -97,11 +99,13 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    "django.middleware.locale.LocaleMiddleware",
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'authentication.middleware.UserLanguageMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'core.utils.RequestLoggingMiddleware'
 ]
 
 STATIC_URL = 'static/'
@@ -156,3 +160,51 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
 CELERY_TIMEZONE = 'Asia/Tashkent'
+
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[{levelname}] {asctime} | {name} | {message}",
+            "style": "{",
+        },
+        "request": {
+            "format": "[{levelname}] {asctime} | {client_ip} | {method} {path} | {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "file_debug": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOG_DIR, "debug.log"),
+            "formatter": "verbose",
+        },
+        "file_requests": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOG_DIR, "requests.log"),
+            "formatter": "request",
+        },
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file_debug"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+        "requests_logger": {
+            "handlers": ["file_requests"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
